@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/plant.dart';
+import '../l10n/l10n_extensions.dart';
 import '../theme/app_theme.dart';
 
 /// Короткая сводка по расписанию полива. Это индикатор соблюдения графика,
@@ -38,7 +39,12 @@ class GardenHealthSummary extends StatelessWidget {
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final compact = constraints.maxWidth < 470;
+                // Russian count labels are wider than their English
+                // counterparts.  At the previous 470px threshold the
+                // summary still tried to fit both pills into a 730px test
+                // viewport (after outer padding), causing a RenderFlex
+                // overflow and pushing the garden content off-screen.
+                final compact = constraints.maxWidth < 760;
                 final summary = Row(
                   children: [
                     Container(
@@ -56,7 +62,7 @@ class GardenHealthSummary extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Здоровье сада',
+                            context.l10n.gardenHealthTitle,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -64,7 +70,7 @@ class GardenHealthSummary extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '$score% растений по графику полива',
+                            context.l10n.gardenHealthScore(score),
                             style: Theme.of(context)
                                 .textTheme
                                 .bodySmall
@@ -77,13 +83,13 @@ class GardenHealthSummary extends StatelessWidget {
                       const SizedBox(width: 12),
                       _CountPill(
                         icon: Icons.check_circle_outline,
-                        label: '$healthyCount в порядке',
+                        label: context.l10n.healthyCount(healthyCount),
                         color: palette.success,
                       ),
                       const SizedBox(width: 8),
                       _CountPill(
                         icon: Icons.water_drop_outlined,
-                        label: '$dueCount к поливу',
+                        label: context.l10n.dueCount(dueCount),
                         color: dueCount > 0 ? palette.error : palette.success,
                       ),
                     ],
@@ -101,12 +107,12 @@ class GardenHealthSummary extends StatelessWidget {
                       children: [
                         _CountPill(
                           icon: Icons.check_circle_outline,
-                          label: '$healthyCount в порядке',
+                          label: context.l10n.healthyCount(healthyCount),
                           color: palette.success,
                         ),
                         _CountPill(
                           icon: Icons.water_drop_outlined,
-                          label: '$dueCount к поливу',
+                          label: context.l10n.dueCount(dueCount),
                           color: dueCount > 0 ? palette.error : palette.success,
                         ),
                       ],
@@ -198,7 +204,9 @@ class GardenEmptyState extends StatelessWidget {
               ),
               const SizedBox(height: 22),
               Text(
-                gardenIsEmpty ? 'Здесь скоро будет ваш сад' : 'Ничего не найдено',
+                gardenIsEmpty
+                    ? context.l10n.emptyGardenTitle
+                    : context.l10n.emptySearchTitle,
                 textAlign: TextAlign.center,
                 style: Theme.of(context)
                     .textTheme
@@ -208,8 +216,8 @@ class GardenEmptyState extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 gardenIsEmpty
-                    ? 'Добавьте первое растение — Floraqua распознает его по фото и поможет следить за уходом.'
-                    : 'Попробуйте изменить поиск или фильтр, чтобы увидеть растения.',
+                    ? context.l10n.emptyGardenDescription
+                    : context.l10n.emptySearchDescription,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: palette.textSecondary,
@@ -220,14 +228,14 @@ class GardenEmptyState extends StatelessWidget {
               if (gardenIsEmpty)
                 FilledButton.icon(
                   onPressed: onAddPlant,
-                  icon: Icon(Icons.add_photo_alternate_outlined),
-                  label: const Text('Добавить первое растение'),
+                  icon: const Icon(Icons.add_photo_alternate_outlined),
+                  label: Text(context.l10n.addFirstPlant),
                 )
               else
                 OutlinedButton.icon(
                   onPressed: onResetFilters,
-                  icon: Icon(Icons.filter_alt_off_outlined),
-                  label: const Text('Сбросить поиск и фильтры'),
+                  icon: const Icon(Icons.filter_alt_off_outlined),
+                  label: Text(context.l10n.resetSearch),
                 ),
             ],
           ),

@@ -36,7 +36,9 @@ void main() {
   });
 
   tearDown(() async {
-    if (await supportDirectory.exists()) await supportDirectory.delete(recursive: true);
+    if (await supportDirectory.exists()) {
+      await supportDirectory.delete(recursive: true);
+    }
   });
 
   test('waterPlant schedules the current season interval and persists it',
@@ -124,5 +126,29 @@ void main() {
       matches(RegExp(r'^DTSTART:\d{8}T\d{6}\r?$', multiLine: true)),
     );
     expect(calendar, isNot(contains('RRULE:')));
+  });
+  test('восстанавливает сад из backup при повреждённом основном JSON',
+      () async {
+    await writeGarden([plantJson()]);
+    final gardenDir = Directory('${supportDirectory.path}/plant_garden');
+    await File('${gardenDir.path}/my_garden.json')
+        .writeAsString('{ broken json');
+    await File('${gardenDir.path}/my_garden.json.backup')
+        .writeAsString(jsonEncode([plantJson(id: 7)]));
+
+    final store = PlantStore(
+      geminiService: GeminiService(
+        apiKey: 'test',
+        client:
+            MockClient((_) async => throw StateError('Unexpected HTTP call')),
+      ),
+      supportDirectoryOverride: supportDirectory,
+    );
+    await store.loadGarden();
+
+    expect(store.plants.single.id, 7);
+    final restored =
+        await File('${gardenDir.path}/my_garden.json').readAsString();
+    expect(restored, contains('"id": 7'));
   });
 }

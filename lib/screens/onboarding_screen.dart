@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n_extensions.dart';
 import '../theme/app_theme.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final Future<void> Function() onComplete;
+  final String localeCode;
+  final Future<void> Function(String) onLocaleCodeChanged;
 
-  const OnboardingScreen({super.key, required this.onComplete});
+  const OnboardingScreen({
+    super.key,
+    required this.onComplete,
+    this.localeCode = 'ru',
+    this.onLocaleCodeChanged = _ignoreLocaleChange,
+  });
+
+  static Future<void> _ignoreLocaleChange(String _) async {}
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -15,32 +25,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pageController = PageController();
   int _page = 0;
   bool _saving = false;
+  late String _localeCode = widget.localeCode;
 
-  static const _pages = <_OnboardingPageData>[
-    _OnboardingPageData(
-      icon: Icons.eco_rounded,
-      title: 'Ваш сад — в одном месте',
-      description:
-          'Добавляйте любимые растения и находите их по фото. Floraqua сохранит карточки и важную информацию о каждом.',
-    ),
-    _OnboardingPageData(
-      icon: Icons.water_drop_rounded,
-      title: 'Уход с учётом сезона',
-      description:
-          'Для растений есть подсказки и ориентиры по поливу. Перед поливом всё равно проверяйте влажность грунта.',
-    ),
-    _OnboardingPageData(
-      icon: Icons.notifications_active_rounded,
-      title: 'Напоминания под ваш ритм',
-      description:
-          'Выберите удобное время уведомлений. Для распознавания растений понадобится ваш личный ключ Gemini — он хранится на этом устройстве.',
-    ),
-  ];
+  @override
+  void didUpdateWidget(covariant OnboardingScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.localeCode != widget.localeCode) {
+      _localeCode = widget.localeCode;
+    }
+  }
 
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectLocale(String code) async {
+    final previous = _localeCode;
+    setState(() => _localeCode = code);
+    try {
+      await widget.onLocaleCodeChanged(code);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _localeCode = previous);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.localeSaveError)),
+      );
+    }
   }
 
   Future<void> _complete() async {
@@ -49,12 +61,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       await widget.onComplete();
       if (!mounted) return;
       setState(() => _saving = false);
-    } catch (error) {
+    } catch (_) {
       if (!mounted) return;
       setState(() => _saving = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Не удалось сохранить первый запуск: $error'),
+          content: Text(context.l10n.onboardingSaveError),
           backgroundColor: context.floraqua.error,
         ),
       );
@@ -62,7 +74,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _next() {
-    if (_page == _pages.length - 1) {
+    if (_page == 2) {
       _complete();
       return;
     }
@@ -72,8 +84,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  String _titleForPage(BuildContext context, int index) {
+    final l10n = context.l10n;
+    return switch (index) {
+      0 => l10n.onboardingTitle1,
+      1 => l10n.onboardingTitle2,
+      _ => l10n.onboardingTitle3,
+    };
+  }
+
+  String _descriptionForPage(BuildContext context, int index) {
+    final l10n = context.l10n;
+    return switch (index) {
+      0 => l10n.onboardingDescription1,
+      1 => l10n.onboardingDescription2,
+      _ => l10n.onboardingDescription3,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    const icons = [
+      Icons.eco_rounded,
+      Icons.water_drop_rounded,
+      Icons.notifications_active_rounded,
+    ];
+
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -96,81 +133,98 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ),
                       const Spacer(),
+                      DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _localeCode,
+                          icon: const Icon(Icons.language_rounded),
+                          borderRadius: BorderRadius.circular(12),
+                          items: [
+                            DropdownMenuItem(
+                              value: 'ru',
+                              child: Text(l10n.languageRussian),
+                            ),
+                            DropdownMenuItem(
+                              value: 'en',
+                              child: Text(l10n.languageEnglish),
+                            ),
+                          ],
+                          onChanged: _saving
+                              ? null
+                              : (code) {
+                                  if (code != null) _selectLocale(code);
+                                },
+                        ),
+                      ),
                       TextButton(
                         onPressed: _saving ? null : _complete,
-                        child: const Text('Пропустить'),
+                        child: Text(l10n.onboardingSkip),
                       ),
                     ],
                   ),
                   Expanded(
                     child: PageView.builder(
                       controller: _pageController,
-                      itemCount: _pages.length,
+                      itemCount: 3,
                       onPageChanged: (value) => setState(() => _page = value),
-                      itemBuilder: (context, index) {
-                        final item = _pages[index];
-                        return LayoutBuilder(
-                          builder: (context, constraints) =>
-                              SingleChildScrollView(
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                minHeight: constraints.maxHeight,
-                              ),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 156,
-                                      height: 156,
-                                      decoration: BoxDecoration(
-                                        color: context.floraqua.primaryLight,
-                                        borderRadius: BorderRadius.circular(48),
-                                      ),
-                                      child: Icon(
-                                        item.icon,
-                                        size: 78,
-                                        color: context.floraqua.primary,
-                                      ),
+                      itemBuilder: (context, index) => LayoutBuilder(
+                        builder: (context, constraints) =>
+                            SingleChildScrollView(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: constraints.maxHeight,
+                            ),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 156,
+                                    height: 156,
+                                    decoration: BoxDecoration(
+                                      color: context.floraqua.primaryLight,
+                                      borderRadius: BorderRadius.circular(48),
                                     ),
-                                    const SizedBox(height: 32),
-                                    Text(
-                                      item.title,
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w800),
+                                    child: Icon(
+                                      icons[index],
+                                      size: 78,
+                                      color: context.floraqua.primary,
                                     ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      item.description,
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge
-                                          ?.copyWith(
-                                            color: context
-                                                .floraqua.textSecondary,
-                                            height: 1.5,
-                                          ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  const SizedBox(height: 32),
+                                  Text(
+                                    _titleForPage(context, index),
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(fontWeight: FontWeight.w800),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    _descriptionForPage(context, index),
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                          color: context.floraqua.textSecondary,
+                                          height: 1.5,
+                                        ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        );
-                      },
+                        ),
+                      ),
                     ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      for (var index = 0; index < _pages.length; index++)
+                      for (var index = 0; index < 3; index++)
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 180),
                           margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -196,16 +250,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : Text(
-                              _page == _pages.length - 1
-                                  ? 'Перейти к настройке ключа'
-                                  : 'Дальше',
-                            ),
+                          : Text(_page == 2
+                              ? l10n.onboardingFinish
+                              : l10n.onboardingNext),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${_page + 1} из ${_pages.length}',
+                    l10n.onboardingProgress(_page + 1, 3),
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall
@@ -219,16 +271,4 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-}
-
-class _OnboardingPageData {
-  final IconData icon;
-  final String title;
-  final String description;
-
-  const _OnboardingPageData({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
 }

@@ -3,9 +3,11 @@ description: "Floraqua — приложение для управления до
 publish_to: 'none'
 version: 1.1.0+1
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.4.0 <4.0.0'
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
   cupertino_icons: ^1.0.6
   # Сеть / Gemini API
@@ -16,7 +18,7 @@ dependencies:
   # Изображения
   image_picker: ^1.0.7
   image: ^4.1.7
-  file_picker: ^8.0.0
+  file_picker: ^10.3.10
   # Уведомления
   flutter_local_notifications: ^22.3.0
   timezone: ^0.11.1
@@ -26,9 +28,8 @@ dependencies:
   window_manager: ^0.3.9
   # Экспорт/импорт
   archive: ^3.4.10
-  share_plus: ^7.2.2
   # Утилиты
-  intl: ^0.19.0
+  intl: ^0.20.2
   url_launcher: ^6.2.5
 
 dev_dependencies:
@@ -39,4 +40,5 @@ dev_dependencies:
   build_runner: ^2.4.8
 
 flutter:
+  generate: true
   uses-material-design: true

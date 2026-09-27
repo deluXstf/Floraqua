@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plant_garden/l10n/generated/app_localizations.dart';
 import 'package:plant_garden/models/plant.dart';
 import 'package:plant_garden/screens/garden_screen.dart';
 import 'package:plant_garden/services/gemini_service.dart';
@@ -47,7 +48,8 @@ class _MemoryPlantStore extends PlantStore {
       id: _items.isEmpty ? 1 : _items.last.id + 1,
       name: 'Фикус',
       customName: customName,
-      imagePath: null, // Не запускаем платформенное чтение файлов в widget-test.
+      imagePath:
+          null, // Не запускаем платформенное чтение файлов в widget-test.
       wateringFrequency: 7,
       lastWatered: now,
       nextWatering: now.add(const Duration(days: 7)),
@@ -101,6 +103,9 @@ void main() {
     final secureStorage = _MemorySecureStorage();
 
     await tester.pumpWidget(MaterialApp(
+      locale: const Locale('ru'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: GardenScreen(
         store: store,
         secureStorage: secureStorage,

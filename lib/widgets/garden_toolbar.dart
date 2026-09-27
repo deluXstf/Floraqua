@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/garden_preferences.dart';
+import '../l10n/l10n_extensions.dart';
 import '../theme/app_theme.dart';
 
 /// Элементы управления поиском, фильтром и способом отображения сада.
@@ -33,8 +34,8 @@ class GardenToolbar extends StatelessWidget {
                 builder: (context, constraints) {
                   final search = TextField(
                     decoration: InputDecoration(
-                      hintText: 'Поиск по названию растения...',
-                      prefixIcon: Icon(Icons.search),
+                      hintText: context.l10n.gardenSearchHint,
+                      prefixIcon: const Icon(Icons.search),
                       filled: true,
                       fillColor: context.floraqua.surface,
                       border: OutlineInputBorder(
@@ -61,14 +62,14 @@ class GardenToolbar extends StatelessWidget {
                     fillColor: context.floraqua.primaryLight,
                     color: context.floraqua.textSecondary,
                     selectedColor: context.floraqua.primaryDark,
-                    children: const [
+                    children: [
                       Tooltip(
-                        message: 'Сетка',
-                        child: Icon(Icons.grid_view_rounded, size: 20),
+                        message: context.l10n.viewGrid,
+                        child: const Icon(Icons.grid_view_rounded, size: 20),
                       ),
                       Tooltip(
-                        message: 'Список',
-                        child: Icon(Icons.view_agenda_outlined, size: 20),
+                        message: context.l10n.viewList,
+                        child: const Icon(Icons.view_agenda_outlined, size: 20),
                       ),
                     ],
                   );
@@ -107,17 +108,17 @@ class GardenToolbar extends StatelessWidget {
                 spacing: 8,
                 children: [
                   _FilterChip(
-                    label: 'Все',
+                    label: context.l10n.filterAll,
                     selected: filter == GardenFilter.all,
                     onTap: () => onFilterChanged(GardenFilter.all),
                   ),
                   _FilterChip(
-                    label: 'К поливу',
+                    label: context.l10n.filterNeedsWater,
                     selected: filter == GardenFilter.needsWater,
                     onTap: () => onFilterChanged(GardenFilter.needsWater),
                   ),
                   _FilterChip(
-                    label: 'Здоровы',
+                    label: context.l10n.filterHealthy,
                     selected: filter == GardenFilter.healthy,
                     onTap: () => onFilterChanged(GardenFilter.healthy),
                   ),

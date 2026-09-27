@@ -1,0 +1,373 @@
+{
+  "@@locale": "ru",
+  "appTitle": "Floraqua",
+  "languageLabel": "Язык",
+  "languageRussian": "Русский",
+  "languageEnglish": "English",
+  "onboardingTitle1": "Ваш сад — в одном месте",
+  "onboardingDescription1": "Добавляйте любимые растения и находите их по фото. Floraqua сохранит карточки и важную информацию о каждом.",
+  "onboardingTitle2": "Уход с учётом сезона",
+  "onboardingDescription2": "Для растений есть подсказки и ориентиры по поливу. Перед поливом всё равно проверяйте влажность грунта.",
+  "onboardingTitle3": "Напоминания под ваш ритм",
+  "onboardingDescription3": "Выберите удобное время уведомлений. Для распознавания растений понадобится ваш личный ключ Gemini — он хранится на этом устройстве.",
+  "onboardingSkip": "Пропустить",
+  "onboardingNext": "Дальше",
+  "onboardingFinish": "Перейти к настройке ключа",
+  "onboardingProgress": "{page} из {total}",
+  "@onboardingProgress": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingSaveError": "Не удалось сохранить настройки первого запуска. Попробуйте ещё раз.",
+  "apiGetKeyTitle": "Получить API-ключ",
+  "apiClose": "Закрыть",
+  "apiEnterKey": "Введите ключ",
+  "apiSaveError": "Не удалось сохранить ключ на этом устройстве. Проверьте разрешения и повторите попытку.",
+  "apiDescription": "Для распознавания растений и советов по уходу нужен персональный ключ Google Gemini API.",
+  "apiSecurityNotice": "Введите только свой ключ и не отправляйте его другим. Не вшивайте общий ключ разработчика в приложение: для такого режима нужен серверный прокси.",
+  "apiWhereGetKey": "Где взять ключ?",
+  "apiKeyLabel": "API-ключ Gemini",
+  "apiShowKey": "Показать ключ",
+  "apiHideKey": "Скрыть ключ",
+  "commonContinue": "Продолжить",
+  "settingsTitle": "Настройки",
+  "themeTitle": "Тема оформления",
+  "settingsSavedOnDevice": "Выбор сохраняется на этом устройстве",
+  "themeSystem": "Как в системе",
+  "themeLight": "Светлая",
+  "themeDark": "Тёмная",
+  "appVersion": "Версия 1.1.0 (Flutter)",
+  "exportGardenTitle": "Экспорт сада (.zip)",
+  "exportGardenSubtitle": "Данные и фото всех растений — для переноса или резервной копии",
+  "importGardenTitle": "Импорт сада (.zip)",
+  "importGardenSubtitle": "Полностью заменит текущий список растений",
+  "calendarTitle": "Календарь полива (.ics)",
+  "calendarSubtitle": "Сезонные даты на год для календарей Google, Outlook и Apple; экспорт нужно обновлять вручную",
+  "reminderTitle": "Время напоминания о поливе",
+  "reminderSubtitle": "Напоминать в дни полива в {time}",
+  "@reminderSubtitle": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "changeApiTitle": "Сменить API-ключ",
+  "changeApiSubtitle": "Ввести другой персональный ключ Gemini",
+  "reminderSaved": "Напоминания будут приходить в {time}",
+  "@reminderSaved": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderSaveError": "Не удалось сохранить время напоминания. Попробуйте ещё раз.",
+  "exportDialogTitle": "Сохранить экспорт сада",
+  "exportSuccess": "Сад экспортирован",
+  "exportFailure": "Не удалось экспортировать сад",
+  "importConfirmTitle": "Импорт сада",
+  "importConfirmBody": "Импорт полностью заменит текущий список растений данными из архива. Перед заменой текущие данные будут сохранены в резервную копию.\n\nПродолжить?",
+  "commonCancel": "Отмена",
+  "commonDelete": "Удалить",
+  "commonEdit": "Изменить",
+  "importFileDialogTitle": "Выбрать файл экспорта сада",
+  "importSuccess": "Сад импортирован",
+  "importFailure": "Не удалось импортировать сад. Проверьте, что выбран корректный файл экспорта.",
+  "calendarSaveDialogTitle": "Сохранить календарь полива",
+  "calendarSaved": "Календарь сохранён",
+  "calendarSaveFailure": "Не удалось создать файл календаря",
+  "changeApiConfirmBody": "Текущий ключ будет удалён. Для дальнейшей работы с приложением нужно будет ввести новый.",
+  "commonChange": "Сменить",
+  "deleteApiKeyError": "Не удалось удалить ключ. Попробуйте ещё раз.",
+  "gardenSearchHint": "Поиск по названию растения...",
+  "viewGrid": "Сетка",
+  "viewList": "Список",
+  "filterAll": "Все",
+  "filterNeedsWater": "К поливу",
+  "filterHealthy": "Здоровы",
+  "gardenSettingsTooltip": "Настройки",
+  "addPlant": "Добавить растение",
+  "gardenLoadError": "Не удалось загрузить сад. Попробуйте ещё раз.",
+  "gardenSaveViewError": "Не удалось сохранить вид сада",
+  "gardenSaveWaterError": "Не удалось сохранить полив",
+  "gardenSaveWaterFailure": "Ошибка при сохранении полива. Попробуйте ещё раз.",
+  "gardenHealthTitle": "Здоровье сада",
+  "gardenHealthScore": "{score}% растений по графику полива",
+  "@gardenHealthScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "healthyCount": "{count, plural, one{{count} растение в порядке} few{{count} растения в порядке} many{{count} растений в порядке} other{{count} растения в порядке}}",
+  "@healthyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dueCount": "{count, plural, one{{count} растение нуждается в поливе} few{{count} растения нуждаются в поливе} many{{count} растений нуждаются в поливе} other{{count} растения нуждаются в поливе}}",
+  "@dueCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "emptyGardenTitle": "Здесь скоро будет ваш сад",
+  "emptySearchTitle": "Ничего не найдено",
+  "emptyGardenDescription": "Добавьте первое растение — Floraqua распознает его по фото и поможет следить за уходом.",
+  "emptySearchDescription": "Попробуйте изменить поиск или фильтр, чтобы увидеть растения.",
+  "addFirstPlant": "Добавить первое растение",
+  "resetSearch": "Сбросить поиск и фильтры",
+  "wateringFrequency": "{count, plural, one{Каждые {count} день} few{Каждые {count} дня} many{Каждые {count} дней} other{Каждые {count} дня}}",
+  "@wateringFrequency": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seasonSpring": "весна",
+  "seasonSummer": "лето",
+  "seasonAutumn": "осень",
+  "seasonWinter": "зима",
+  "plantDetailsTitle": "Растение",
+  "plantNotFound": "Растение больше не найдено.",
+  "plantActionsTooltip": "Действия",
+  "recheckPhoto": "Перепроверить по фото",
+  "moreActions": "Другие действия",
+  "plantDetails": "Подробнее",
+  "deletePlantTitle": "Удалить растение?",
+  "deletePlantBody": "«{plant}» будет удалено безвозвратно.",
+  "@deletePlantBody": {
+    "placeholders": {
+      "plant": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePlantMenu": "Удалить растение",
+  "wateringLabel": "Полив",
+  "nextWateringDetails": "Следующий: {date} · уведомление в {time}",
+  "@nextWateringDetails": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "lastWatering": "Последний полив",
+  "historyCount": "{count, plural, one{{count} запись в истории} few{{count} записи в истории} many{{count} записей в истории} other{{count} записи в истории}}",
+  "@historyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "markWatered": "Отметить полив",
+  "careConditions": "Условия содержания",
+  "lightLabel": "Освещение",
+  "temperatureLabel": "Температура",
+  "humidityLabel": "Влажность воздуха",
+  "difficultyLabel": "Сложность ухода",
+  "baseWateringInterval": "Базовый интервал полива",
+  "estimatedWaterAmount": "Ориентировочная норма",
+  "seasonCurrent": "Сейчас: {season}",
+  "@seasonCurrent": {
+    "placeholders": {
+      "season": {
+        "type": "String"
+      }
+    }
+  },
+  "estimatedWaterFrequency": "Ориентировочно: {frequency}",
+  "@estimatedWaterFrequency": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "careTips": "Советы по уходу",
+  "lastPhotoAssessment": "Оценка по последнему фото",
+  "wateringHistory": "История полива",
+  "watered": "Полито",
+  "myNotes": "Мои заметки",
+  "placeAndPot": "Место и горшок",
+  "potSize": "Размер горшка",
+  "locationLabel": "Расположение",
+  "drainageHoles": "Дренажные отверстия",
+  "notSpecified": "Не указано",
+  "wateringDisclaimer": "График полива — ориентир. Перед поливом проверьте влажность грунта.",
+  "addPhotoPermissionError": "Разрешите доступ к источнику «{source}» в настройках устройства.",
+  "@addPhotoPermissionError": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "permissionCamera": "камере",
+  "permissionPhotos": "фотографиям",
+  "loadingPhotoAnalysis": "Анализ фото...",
+  "plantAdded": "Растение добавлено",
+  "loadingPlantCheck": "Проверка состояния...",
+  "photoSourceTitle": "Добавить растение",
+  "photoSourcePrompt": "Откуда добавить фотографию?",
+  "choosePhotoLibrary": "Выбрать из фотогалереи",
+  "takePhotoNow": "Сделать фото сейчас",
+  "deleteConfirmTitle": "Удалить растение?",
+  "wateringSaved": "Полив сохранён",
+  "waterNow": "Полить",
+  "wateringInProgress": "Полив…",
+  "closeViewer": "Закрыть",
+  "onboardingError": "Не удалось сохранить первый запуск. Попробуйте ещё раз.",
+  "plantEditorEditTitle": "Изменить растение",
+  "plantEditorNewTitle": "Новое растение",
+  "plantNameOptional": "Название (необязательно)",
+  "wateringFrequencyField": "Базовая частота полива (дней)",
+  "lastWateredDate": "Дата последнего полива",
+  "dateWillClear": "Дата будет очищена",
+  "dateNotSet": "Не задана",
+  "dateDoNotChange": "Не менять",
+  "commonClear": "Очистить",
+  "wateringIntervalHelp": "Это базовый интервал: приложение корректирует его по сезону. Дата следующего полива пересчитается по выбранной частоте и/или дате последнего полива.",
+  "notesForAiLabel": "Другие примечания для ИИ (необязательно)",
+  "notesForAiHelp": "Это заметка на будущее. ИИ прочитает её при следующем анализе фото («Перепроверить по фото»); сохранение формы ничего не отправляет и ни на что не влияет прямо сейчас.",
+  "frequencyValidation": "Укажите число дней от 1 до 30",
+  "potSmall": "Маленький (до 10 см)",
+  "potMedium": "Средний (10–20 см)",
+  "potLarge": "Большой (20–30 см)",
+  "potExtraLarge": "Очень большой (30+ см)",
+  "locationSouthWindow": "Южное окно",
+  "locationNorthWindow": "Северное окно",
+  "locationEastWindow": "Восточное окно",
+  "locationWestWindow": "Западное окно",
+  "locationAwayFromWindow": "Подальше от окна",
+  "locationBalcony": "Балкон/лоджия",
+  "yes": "Да",
+  "no": "Нет",
+  "unknown": "Не знаю",
+  "geminiGenericError": "Что-то пошло не так. Попробуйте ещё раз.",
+  "geminiPlantNotFound": "На фото не удалось распознать растение.",
+  "geminiQuotaError": "Превышена квота Gemini API. Подождите некоторое время или проверьте лимиты в Google AI Studio.",
+  "geminiApiError": "Ошибка обращения к Gemini API (HTTP {status}). Проверьте API-ключ и попробуйте ещё раз.",
+  "@geminiApiError": {
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "geminiTimeoutError": "Gemini не ответил за {seconds} сек. Проверьте подключение к интернету и попробуйте ещё раз.",
+  "@geminiTimeoutError": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "geminiNetworkError": "Не удалось подключиться к Gemini. Проверьте интернет. Если вы находитесь в России или другой стране с ограничением доступа к сервису, включите VPN и повторите попытку.",
+  "geminiSecureConnectionError": "Не удалось установить защищённое соединение с Gemini. Проверьте интернет и дату/время устройства.",
+  "geminiUnknownError": "Неизвестная ошибка обращения к Gemini API.",
+  "notificationTitle": "Напоминания о поливе",
+  "notificationDescription": "Напоминания о поливе растений",
+  "notificationOpen": "Открыть Floraqua",
+  "notificationDueTitle": "Пора полить: {plant}",
+  "@notificationDueTitle": {
+    "placeholders": {
+      "plant": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationFrequency": "Периодичность полива: раз в {frequency}",
+  "@notificationFrequency": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarEventTitle": "Полить: {plant}",
+  "@calendarEventTitle": {
+    "placeholders": {
+      "plant": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarBaseFrequency": "Базовый интервал: {frequency}",
+  "@calendarBaseFrequency": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarSeasonalFrequency": "Сезонный интервал: {frequency}",
+  "@calendarSeasonalFrequency": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarReminderTime": "Время напоминания: {time}.",
+  "@calendarReminderTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarCheckSoil": "Перед поливом проверьте грунт.",
+  "calendarWaterAmount": "Норма полива: {amount}",
+  "@calendarWaterAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "difficultyEasy": "Легко",
+  "difficultyMedium": "Средне",
+  "difficultyHard": "Сложно",
+  "monthJanuary": "января",
+  "monthFebruary": "февраля",
+  "monthMarch": "марта",
+  "monthApril": "апреля",
+  "monthMay": "мая",
+  "monthJune": "июня",
+  "monthJuly": "июля",
+  "monthAugust": "августа",
+  "monthSeptember": "сентября",
+  "monthOctober": "октября",
+  "monthNovember": "ноября",
+  "monthDecember": "декабря",
+  "wateringDaysShort": "{count, plural, one{{count} дн.} few{{count} дн.} many{{count} дн.} other{{count} дн.}}",
+  "@wateringDaysShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "themeSaveError": "Не удалось сохранить тему. Попробуйте ещё раз.",
+  "localeSaveError": "Не удалось сохранить язык. Попробуйте ещё раз.",
+  "openPhotoFullSize": "Двойной клик — открыть в полный размер"
+}

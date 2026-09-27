@@ -153,7 +153,8 @@ class FloraquaPalette extends ThemeExtension<FloraquaPalette> {
     Color? chipMediumFg,
     Color? chipHardBg,
     Color? chipHardFg,
-  }) => FloraquaPalette(
+  }) =>
+      FloraquaPalette(
         primary: primary ?? this.primary,
         primaryDark: primaryDark ?? this.primaryDark,
         primaryLight: primaryLight ?? this.primaryLight,

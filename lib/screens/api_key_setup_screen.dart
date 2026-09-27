@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/secure_storage_service.dart';
+import '../l10n/l10n_extensions.dart';
 import '../theme/app_theme.dart';
 
 /// Экран ввода персонального API-ключа Gemini — аналог ApiKeySetupDialog
@@ -62,12 +63,12 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Получить API-ключ'),
+        title: Text(context.l10n.apiGetKeyTitle),
         content: const SelectableText(_apiKeyPageUrl),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Закрыть'),
+            child: Text(context.l10n.apiClose),
           ),
         ],
       ),
@@ -77,7 +78,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
   Future<void> _submit() async {
     final key = _controller.text.trim();
     if (key.isEmpty) {
-      setState(() => _error = 'Введите ключ');
+      setState(() => _error = context.l10n.apiEnterKey);
       return;
     }
 
@@ -97,8 +98,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
       if (!mounted) return;
       setState(() {
         _saving = false;
-        _error = 'Не удалось сохранить ключ на этом устройстве. '
-            'Проверьте разрешения и повторите попытку.';
+        _error = context.l10n.apiSaveError;
       });
       debugPrint('Ошибка сохранения Gemini-ключа: $error');
       return;
@@ -133,8 +133,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Для распознавания растений и советов по уходу нужен '
-                    'персональный ключ Google Gemini API.',
+                    context.l10n.apiDescription,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: context.floraqua.textSecondary),
                   ),
@@ -146,8 +145,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      'Введите только свой ключ и не отправляйте его другим. '
-                      'Не вшивайте общий ключ разработчика в приложение: для такого режима нужен серверный прокси.',
+                      context.l10n.apiSecurityNotice,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,
@@ -158,20 +156,22 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                   const SizedBox(height: 4),
                   TextButton(
                     onPressed: _openApiKeyPage,
-                    child: const Text('Где взять ключ?'),
+                    child: Text(context.l10n.apiWhereGetKey),
                   ),
                   const SizedBox(height: 20),
                   TextField(
                     controller: _controller,
                     obscureText: _obscure,
                     decoration: InputDecoration(
-                      labelText: 'API-ключ Gemini',
+                      labelText: context.l10n.apiKeyLabel,
                       border: const OutlineInputBorder(),
                       errorText: _error,
                       suffixIcon: IconButton(
                         icon: Icon(
                             _obscure ? Icons.visibility_off : Icons.visibility),
-                        tooltip: _obscure ? 'Показать ключ' : 'Скрыть ключ',
+                        tooltip: _obscure
+                            ? context.l10n.apiShowKey
+                            : context.l10n.apiHideKey,
                         onPressed: () => setState(() => _obscure = !_obscure),
                       ),
                     ),
@@ -193,7 +193,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: Colors.white),
                             )
-                          : const Text('Продолжить'),
+                          : Text(context.l10n.commonContinue),
                     ),
                   ),
                 ],

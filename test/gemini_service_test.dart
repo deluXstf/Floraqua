@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:plant_garden/services/gemini_service.dart';
+import 'package:plant_garden/services/gemini_prompts.dart';
 
 http.Response _okResponse(String text) {
   final body = jsonEncode({
@@ -177,6 +178,20 @@ void main() {
   });
 
   group('identifyPlant', () {
+    test('English locale provides English identification and context prompts',
+        () {
+      expect(identifyPlantPromptFor('en'),
+          contains('common plant name in English'));
+      expect(
+        buildGeminiContextBlock(potSize: 'Medium', localeCode: 'en'),
+        contains('Additional growing conditions'),
+      );
+      expect(
+        buildGeminiContextBlock(potSize: 'Medium', localeCode: 'en'),
+        contains('Pot size: Medium'),
+      );
+    });
+
     test('некорректный JSON от модели возвращает понятную ошибку сервиса',
         () async {
       final client = MockClient((request) async => _okResponse('это не JSON'));
@@ -260,5 +275,31 @@ void main() {
     test('null — используется значение по умолчанию', () {
       expect(parseWateringFrequency(null, fallback: 7), 7);
     });
+  });
+
+  test('неполный ответ identifyPlant превращается в понятную ошибку', () async {
+    final client = MockClient((request) async => _okResponse(
+          '{"watering_frequency": 7}',
+        ));
+    final service = GeminiService(apiKey: 'test', client: client);
+
+    await expectLater(
+      service.identifyPlant(imageBytes: [1, 2, 3]),
+      throwsA(isA<GeminiApiException>()),
+    );
+  });
+
+  test('пустой или заблокированный ответ Gemini не приводит к TypeError',
+      () async {
+    final client = MockClient((request) async => _utf8Response(
+          jsonEncode({'candidates': []}),
+          200,
+        ));
+    final service = GeminiService(apiKey: 'test', client: client);
+
+    await expectLater(
+      service.assessWateringByPhoto(imageBytes: [1, 2, 3]),
+      throwsA(isA<GeminiApiException>()),
+    );
   });
 }

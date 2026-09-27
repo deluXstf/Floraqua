@@ -27,13 +27,18 @@ import 'seasonal_watering.dart';
 /// планируем БУДУЩИЕ уведомления и отменяем ещё не показанные, а не
 /// запрашиваем историю уже показанных).
 class NotificationService {
-  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
   bool _initialized = false;
   int _reminderHour;
   int _reminderMinute;
+  String localeCode;
 
-  NotificationService({int reminderHour = 9, int reminderMinute = 0})
-      : _reminderHour = reminderHour,
+  NotificationService({
+    int reminderHour = 9,
+    int reminderMinute = 0,
+    this.localeCode = 'ru',
+  })  : _reminderHour = reminderHour,
         _reminderMinute = reminderMinute {
     _validateReminderTime(reminderHour, reminderMinute);
   }
@@ -63,8 +68,8 @@ class NotificationService {
 
     tzdata.initializeTimeZones();
     try {
-      final timeZoneName = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(timeZoneName));
+      final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timeZoneInfo.identifier));
     } catch (e) {
       // Не удалось определить локальный часовой пояс устройства — тихо
       // остаёмся на UTC по умолчанию. Уведомления в этом случае всё равно
@@ -72,10 +77,13 @@ class NotificationService {
       // пользователя — не критично для функции "напомнить полить растение".
     }
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     const darwinSettings = DarwinInitializationSettings();
-    const linuxSettings =
-        LinuxInitializationSettings(defaultActionName: 'Открыть Floraqua');
+    final linuxSettings = LinuxInitializationSettings(
+      defaultActionName:
+          localeCode == 'en' ? 'Open Floraqua' : 'Открыть Floraqua',
+    );
     // GUID ни на что не завязан — просто уникальный идентификатор колбэка
     // активации уведомлений для этого конкретного приложения на Windows.
     const windowsSettings = WindowsInitializationSettings(
@@ -84,7 +92,7 @@ class NotificationService {
       guid: 'e6f5b7b0-2b8a-4d9e-9c4b-6f1a2d3e4f5a',
     );
 
-    const initSettings = InitializationSettings(
+    final initSettings = InitializationSettings(
       android: androidSettings,
       iOS: darwinSettings,
       macOS: darwinSettings,
@@ -128,22 +136,29 @@ class NotificationService {
       scheduledDate = now.add(const Duration(minutes: 1));
     }
 
-    const details = NotificationDetails(
+    final english = localeCode == 'en';
+    final details = NotificationDetails(
       android: AndroidNotificationDetails(
-        'watering_reminders',
-        'Напоминания о поливе',
-        channelDescription: 'Напоминания о поливе растений',
+        'watering_reminders_$localeCode',
+        english ? 'Watering reminders' : 'Напоминания о поливе',
+        channelDescription: english
+            ? 'Reminders to water your plants'
+            : 'Напоминания о поливе растений',
         importance: Importance.high,
         priority: Priority.high,
       ),
-      windows: WindowsNotificationDetails(),
+      windows: const WindowsNotificationDetails(),
     );
 
     try {
       await _plugin.zonedSchedule(
         id: plant.id,
-        title: 'Пора полить: ${plant.displayName}',
-        body: 'Периодичность полива: раз в $frequency дн.',
+        title: english
+            ? 'Time to water: ${plant.displayName}'
+            : 'Пора полить: ${plant.displayName}',
+        body: english
+            ? 'Watering interval: every $frequency days'
+            : 'Периодичность полива: раз в $frequency дн.',
         scheduledDate: scheduledDate,
         notificationDetails: details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,

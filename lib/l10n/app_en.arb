@@ -1,0 +1,373 @@
+{
+  "@@locale": "en",
+  "appTitle": "Floraqua",
+  "languageLabel": "Language",
+  "languageRussian": "Русский",
+  "languageEnglish": "English",
+  "onboardingTitle1": "Your garden, all in one place",
+  "onboardingDescription1": "Add your favorite plants and identify them from a photo. Floraqua keeps each plant's details and care information together.",
+  "onboardingTitle2": "Care that follows the seasons",
+  "onboardingDescription2": "Get care guidance and watering estimates for your plants. Always check the soil before watering.",
+  "onboardingTitle3": "Reminders on your schedule",
+  "onboardingDescription3": "Choose a convenient notification time. Plant identification requires your own Gemini API key, which is stored on this device.",
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingFinish": "Continue to API key setup",
+  "onboardingProgress": "{page} of {total}",
+  "@onboardingProgress": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingSaveError": "Couldn't save the first-run setting. Please try again.",
+  "apiGetKeyTitle": "Get an API key",
+  "apiClose": "Close",
+  "apiEnterKey": "Enter an API key",
+  "apiSaveError": "Couldn't save the key on this device. Check permissions and try again.",
+  "apiDescription": "A personal Google Gemini API key is required to identify plants and provide care guidance.",
+  "apiSecurityNotice": "Enter only your own key and never share it. A shared developer key must not be embedded in the app; that would require a server proxy.",
+  "apiWhereGetKey": "Where can I get a key?",
+  "apiKeyLabel": "Gemini API key",
+  "apiShowKey": "Show key",
+  "apiHideKey": "Hide key",
+  "commonContinue": "Continue",
+  "settingsTitle": "Settings",
+  "themeTitle": "Appearance",
+  "settingsSavedOnDevice": "This choice is saved on this device",
+  "themeSystem": "Use system setting",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "appVersion": "Version 1.1.0 (Flutter)",
+  "exportGardenTitle": "Export garden (.zip)",
+  "exportGardenSubtitle": "Plant data and photos for transfer or backup",
+  "importGardenTitle": "Import garden (.zip)",
+  "importGardenSubtitle": "Replaces the current plant list",
+  "calendarTitle": "Watering calendar (.ics)",
+  "calendarSubtitle": "Seasonal dates for Google, Outlook, and Apple calendars; exports must be refreshed manually",
+  "reminderTitle": "Watering reminder time",
+  "reminderSubtitle": "Daily watering reminder at {time}",
+  "@reminderSubtitle": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "changeApiTitle": "Change API key",
+  "changeApiSubtitle": "Enter another personal Gemini key",
+  "reminderSaved": "Reminders will arrive at {time}",
+  "@reminderSaved": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderSaveError": "Couldn't save the reminder time. Please try again.",
+  "exportDialogTitle": "Save garden export",
+  "exportSuccess": "Garden exported",
+  "exportFailure": "Couldn't export the garden",
+  "importConfirmTitle": "Import garden",
+  "importConfirmBody": "Import will completely replace the current plant list with the archive contents. A backup of the current data will be saved first.\n\nContinue?",
+  "commonCancel": "Cancel",
+  "commonDelete": "Delete",
+  "commonEdit": "Edit",
+  "importFileDialogTitle": "Choose a garden export file",
+  "importSuccess": "Garden imported",
+  "importFailure": "Couldn't import the garden. Check that you selected a valid export file.",
+  "calendarSaveDialogTitle": "Save watering calendar",
+  "calendarSaved": "Calendar saved",
+  "calendarSaveFailure": "Couldn't create the calendar file",
+  "changeApiConfirmBody": "The current key will be removed. You must enter a new key before using the app again.",
+  "commonChange": "Change",
+  "deleteApiKeyError": "Couldn't remove the key. Please try again.",
+  "gardenSearchHint": "Search plants by name...",
+  "viewGrid": "Grid",
+  "viewList": "List",
+  "filterAll": "All",
+  "filterNeedsWater": "Needs water",
+  "filterHealthy": "On schedule",
+  "gardenSettingsTooltip": "Settings",
+  "addPlant": "Add plant",
+  "gardenLoadError": "Couldn't load the garden. Please try again.",
+  "gardenSaveViewError": "Couldn't save the view setting",
+  "gardenSaveWaterError": "Couldn't save watering",
+  "gardenSaveWaterFailure": "Couldn't save watering. Please try again.",
+  "gardenHealthTitle": "Garden health",
+  "gardenHealthScore": "{score}% of plants are on their watering schedule",
+  "@gardenHealthScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "healthyCount": "{count, plural, one{{count} on schedule} other{{count} on schedule}}",
+  "@healthyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dueCount": "{count, plural, one{{count} needs water} other{{count} need water}}",
+  "@dueCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "emptyGardenTitle": "Your garden starts here",
+  "emptySearchTitle": "No plants found",
+  "emptyGardenDescription": "Add your first plant. Floraqua can identify it from a photo and help you care for it.",
+  "emptySearchDescription": "Try changing your search or filter to see your plants.",
+  "addFirstPlant": "Add your first plant",
+  "resetSearch": "Clear search and filters",
+  "wateringFrequency": "{count, plural, one{Every {count} day} other{Every {count} days}}",
+  "@wateringFrequency": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seasonSpring": "spring",
+  "seasonSummer": "summer",
+  "seasonAutumn": "autumn",
+  "seasonWinter": "winter",
+  "plantDetailsTitle": "Plant",
+  "plantNotFound": "This plant could not be found.",
+  "plantActionsTooltip": "Actions",
+  "recheckPhoto": "Recheck from photo",
+  "moreActions": "More actions",
+  "plantDetails": "Details",
+  "deletePlantTitle": "Delete plant?",
+  "deletePlantBody": "\"{plant}\" will be permanently deleted.",
+  "@deletePlantBody": {
+    "placeholders": {
+      "plant": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePlantMenu": "Delete plant",
+  "wateringLabel": "Watering",
+  "nextWateringDetails": "Next: {date} · reminder at {time}",
+  "@nextWateringDetails": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "lastWatering": "Last watered",
+  "historyCount": "{count, plural, one{{count} history entry} other{{count} history entries}}",
+  "@historyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "markWatered": "Mark as watered",
+  "careConditions": "Care conditions",
+  "lightLabel": "Light",
+  "temperatureLabel": "Temperature",
+  "humidityLabel": "Humidity",
+  "difficultyLabel": "Care difficulty",
+  "baseWateringInterval": "Base watering interval",
+  "estimatedWaterAmount": "Estimated amount",
+  "seasonCurrent": "Currently: {season}",
+  "@seasonCurrent": {
+    "placeholders": {
+      "season": {
+        "type": "String"
+      }
+    }
+  },
+  "estimatedWaterFrequency": "Estimated: {frequency}",
+  "@estimatedWaterFrequency": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "careTips": "Care tips",
+  "lastPhotoAssessment": "Last photo assessment",
+  "wateringHistory": "Watering history",
+  "watered": "Watered",
+  "myNotes": "My notes",
+  "placeAndPot": "Location and pot",
+  "potSize": "Pot size",
+  "locationLabel": "Location",
+  "drainageHoles": "Drainage holes",
+  "notSpecified": "Not specified",
+  "wateringDisclaimer": "Watering dates are a guide. Check soil moisture before watering.",
+  "addPhotoPermissionError": "Allow access to {source} in your device settings.",
+  "@addPhotoPermissionError": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "permissionCamera": "the camera",
+  "permissionPhotos": "your photos",
+  "loadingPhotoAnalysis": "Analyzing photo...",
+  "plantAdded": "Plant added",
+  "loadingPlantCheck": "Checking plant...",
+  "photoSourceTitle": "Add a plant",
+  "photoSourcePrompt": "Where would you like to get a photo?",
+  "choosePhotoLibrary": "Choose from photo library",
+  "takePhotoNow": "Take a photo now",
+  "deleteConfirmTitle": "Delete plant?",
+  "wateringSaved": "Watering saved",
+  "waterNow": "Water",
+  "wateringInProgress": "Watering...",
+  "closeViewer": "Close",
+  "onboardingError": "Couldn't save onboarding. Please try again.",
+  "plantEditorEditTitle": "Edit plant",
+  "plantEditorNewTitle": "New plant",
+  "plantNameOptional": "Name (optional)",
+  "wateringFrequencyField": "Base watering interval (days)",
+  "lastWateredDate": "Last watered date",
+  "dateWillClear": "Date will be cleared",
+  "dateNotSet": "Not set",
+  "dateDoNotChange": "Keep current date",
+  "commonClear": "Clear",
+  "wateringIntervalHelp": "This is the base interval; the app adjusts it by season. The next watering date will be recalculated from the selected frequency and/or last-watered date.",
+  "notesForAiLabel": "Additional notes for AI (optional)",
+  "notesForAiHelp": "This note is saved for later. AI will read it the next time you check a photo; saving this form does not send it or change anything now.",
+  "frequencyValidation": "Enter a number of days from 1 to 30",
+  "potSmall": "Small (up to 10 cm)",
+  "potMedium": "Medium (10–20 cm)",
+  "potLarge": "Large (20–30 cm)",
+  "potExtraLarge": "Extra large (30+ cm)",
+  "locationSouthWindow": "South-facing window",
+  "locationNorthWindow": "North-facing window",
+  "locationEastWindow": "East-facing window",
+  "locationWestWindow": "West-facing window",
+  "locationAwayFromWindow": "Away from a window",
+  "locationBalcony": "Balcony / loggia",
+  "yes": "Yes",
+  "no": "No",
+  "unknown": "Don't know",
+  "geminiGenericError": "Something went wrong. Please try again.",
+  "geminiPlantNotFound": "No plant was detected in the photo.",
+  "geminiQuotaError": "Gemini API quota exceeded. Wait a while or check your limits in Google AI Studio.",
+  "geminiApiError": "Gemini API request failed (HTTP {status}). Please check your API key and try again.",
+  "@geminiApiError": {
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "geminiTimeoutError": "Gemini did not respond within {seconds} seconds. Check your internet connection and try again.",
+  "@geminiTimeoutError": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "geminiNetworkError": "Couldn't connect to Gemini. Check your internet connection. If access to the service is restricted in your region, enable a VPN and try again.",
+  "geminiSecureConnectionError": "Couldn't establish a secure connection to Gemini. Check your internet and device date/time.",
+  "geminiUnknownError": "An unknown Gemini API error occurred.",
+  "notificationTitle": "Watering reminders",
+  "notificationDescription": "Reminders to water your plants",
+  "notificationOpen": "Open Floraqua",
+  "notificationDueTitle": "Time to water: {plant}",
+  "@notificationDueTitle": {
+    "placeholders": {
+      "plant": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationFrequency": "Watering interval: every {frequency}",
+  "@notificationFrequency": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarEventTitle": "Water: {plant}",
+  "@calendarEventTitle": {
+    "placeholders": {
+      "plant": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarBaseFrequency": "Base interval: {frequency}",
+  "@calendarBaseFrequency": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarSeasonalFrequency": "Seasonal interval: {frequency}",
+  "@calendarSeasonalFrequency": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarReminderTime": "Reminder time: {time}.",
+  "@calendarReminderTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarCheckSoil": "Check the soil before watering.",
+  "calendarWaterAmount": "Water amount: {amount}",
+  "@calendarWaterAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "difficultyEasy": "Easy",
+  "difficultyMedium": "Moderate",
+  "difficultyHard": "Challenging",
+  "monthJanuary": "January",
+  "monthFebruary": "February",
+  "monthMarch": "March",
+  "monthApril": "April",
+  "monthMay": "May",
+  "monthJune": "June",
+  "monthJuly": "July",
+  "monthAugust": "August",
+  "monthSeptember": "September",
+  "monthOctober": "October",
+  "monthNovember": "November",
+  "monthDecember": "December",
+  "wateringDaysShort": "{count, plural, one{{count} day} other{{count} days}}",
+  "@wateringDaysShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "themeSaveError": "Couldn't save the theme. Please try again.",
+  "localeSaveError": "Couldn't save the language setting. Please try again.",
+  "openPhotoFullSize": "Double-click to open full size"
+}

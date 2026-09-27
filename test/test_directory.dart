@@ -6,7 +6,7 @@ import 'dart:io';
 Future<Directory> createProjectTestDirectory(String prefix) async {
   final separator = Platform.pathSeparator;
   final parent = Directory(
-    '${Directory.current.path}${separator}.dart_tool${separator}floraqua_test_data',
+    '${Directory.current.path}$separator.dart_tool${separator}floraqua_test_data',
   );
   await parent.create(recursive: true);
 

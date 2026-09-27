@@ -4,14 +4,25 @@ import '../models/plant.dart' show clampWateringFrequency;
 import 'gemini_exceptions.dart';
 
 String extractGeminiResponseText(String responseBody) {
-  final decoded = jsonDecode(responseBody) as Map<String, dynamic>;
-  final candidates = decoded['candidates'] as List<dynamic>?;
-  if (candidates == null || candidates.isEmpty) {
-    throw const GeminiApiException('Gemini API вернул пустой ответ');
+  try {
+    final decoded = jsonDecode(responseBody);
+    if (decoded is! Map<String, dynamic>) throw const FormatException();
+    final candidates = decoded['candidates'];
+    if (candidates is! List || candidates.isEmpty) {
+      throw const FormatException();
+    }
+    final first = candidates.first;
+    final content = first is Map ? first['content'] : null;
+    final parts = content is Map ? content['parts'] : null;
+    if (parts is! List || parts.isEmpty) throw const FormatException();
+    final text = parts.first is Map ? parts.first['text'] : null;
+    if (text is! String || text.trim().isEmpty) throw const FormatException();
+    return text;
+  } catch (_) {
+    throw const GeminiApiException(
+      'Gemini API вернул пустой или заблокированный ответ',
+    );
   }
-  final content = candidates.first['content'] as Map<String, dynamic>;
-  final parts = content['parts'] as List<dynamic>;
-  return parts.first['text'] as String;
 }
 
 /// Достать JSON из ответа модели, убрав возможную markdown-обёртку.
@@ -68,5 +79,5 @@ int parseWateringFrequency(dynamic value, {int fallback = 7}) {
     }
   }
 
-  return fallback;
+  return clampWateringFrequency(fallback);
 }

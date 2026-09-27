@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n_extensions.dart';
+
 /// Полноэкранный просмотр фото с масштабированием мышью и жестами.
 class FullImageViewer extends StatelessWidget {
   final String imagePath;
@@ -29,7 +31,7 @@ class FullImageViewer extends StatelessWidget {
                 right: 8,
                 child: IconButton(
                   icon: const Icon(Icons.close, color: Colors.white, size: 28),
-                  tooltip: 'Закрыть',
+                  tooltip: context.l10n.closeViewer,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),

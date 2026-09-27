@@ -25,6 +25,7 @@ class PlantStore extends ChangeNotifier {
   final GeminiService geminiService;
   final NotificationService? notificationService;
   final Directory? supportDirectoryOverride;
+  String localeCode;
 
   List<Plant> _plants = [];
   List<Plant> get plants => List.unmodifiable(_plants);
@@ -32,12 +33,31 @@ class PlantStore extends ChangeNotifier {
   Directory? _appDir;
   Directory? _imagesDir;
   File? _gardenFile;
+  Future<void> _saveQueue = Future<void>.value();
 
   PlantStore({
     required this.geminiService,
     this.notificationService,
     this.supportDirectoryOverride,
+    this.localeCode = 'ru',
   });
+
+  Future<void> updateLocale(String code) async {
+    if (code != 'ru' && code != 'en') return;
+    localeCode = code;
+    geminiService.localeCode = code;
+    if (notificationService != null) {
+      notificationService!.localeCode = code;
+      for (final plant in _plants) {
+        try {
+          await notificationService!.scheduleWateringReminder(plant);
+        } catch (error) {
+          debugPrint(
+              'Could not refresh a reminder after changing language: $error');
+        }
+      }
+    }
+  }
 
   int get reminderHour => notificationService?.reminderHour ?? 9;
   int get reminderMinute => notificationService?.reminderMinute ?? 0;
@@ -79,30 +99,28 @@ class PlantStore extends ChangeNotifier {
   }
 
   /// Загрузить сад с диска — вызвать один раз при старте приложения.
-  /// Аналог load_garden(): любая ошибка чтения/парсинга тихо даёт пустой сад
-  /// вместо падения приложения (то же поведение, что и в Python-версии).
+  /// При повреждении основного файла пробует восстановиться из .backup.
   Future<void> loadGarden() async {
     await _ensureInitialized();
     try {
       if (await _gardenFile!.exists()) {
-        final content = await _gardenFile!.readAsString();
-        final decoded = jsonDecode(content);
-        if (decoded is List) {
-          final loadedPlants = <Plant>[];
-          for (final item in decoded) {
-            if (item is! Map<String, dynamic>) continue;
-            try {
-              loadedPlants.add(Plant.fromJson(item));
-            } catch (e) {
-              debugPrint('Пропущена повреждённая запись растения: $e');
-            }
-          }
-          _plants = loadedPlants;
-        }
+        _plants = await _readPlantsFile(_gardenFile!);
       }
     } catch (e) {
-      debugPrint('Ошибка загрузки сада: $e');
-      _plants = [];
+      debugPrint('Ошибка загрузки основного файла сада: $e');
+      final backupFile = File('${_gardenFile!.path}.backup');
+      try {
+        if (await backupFile.exists()) {
+          _plants = await _readPlantsFile(backupFile);
+          await backupFile.copy(_gardenFile!.path);
+          debugPrint('Сад восстановлен из резервной копии');
+        } else {
+          _plants = [];
+        }
+      } catch (backupError) {
+        debugPrint('Ошибка восстановления резервной копии: $backupError');
+        _plants = [];
+      }
     }
     await refreshSeasonalWatering(notify: false);
     notifyListeners();
@@ -116,30 +134,62 @@ class PlantStore extends ChangeNotifier {
     }
   }
 
-  /// Сохранить сад на диск — атомарно: пишем во временный файл, делаем
-  /// резервную копию текущего файла, и только потом подменяем основной файл.
-  /// Прямой порт save_garden() — тот же принцип "не потерять данные при
-  /// сбое посреди записи", который мы отдельно закладывали в Python-версии.
-  Future<bool> _saveGarden() async {
+  /// Сохранить сад на диск с резервной копией и восстановлением после сбоя.
+  /// На Windows rename поверх существующего файла может завершиться ошибкой,
+  /// поэтому целевой файл удаляется только после создания backup.
+  Future<bool> _saveGarden() {
+    final result = _saveQueue.then((_) => _saveGardenOnce());
+    _saveQueue = result.then<void>((_) {}, onError: (_, __) {});
+    return result;
+  }
+
+  Future<bool> _saveGardenOnce() async {
     await _ensureInitialized();
+    final tempFile = File('${_gardenFile!.path}.tmp');
+    final backupFile = File('${_gardenFile!.path}.backup');
     try {
-      final tempFile = File('${_gardenFile!.path}.tmp');
       final jsonList = _plants.map((p) => p.toJson()).toList();
       await tempFile.writeAsString(
         const JsonEncoder.withIndent('  ').convert(jsonList),
+        flush: true,
       );
 
       if (await _gardenFile!.exists()) {
-        final backupFile = File('${_gardenFile!.path}.backup');
         await _gardenFile!.copy(backupFile.path);
+        await _gardenFile!.delete();
       }
-
       await tempFile.rename(_gardenFile!.path);
       return true;
     } catch (e) {
       debugPrint('Ошибка сохранения сада: $e');
+      try {
+        if (!await _gardenFile!.exists() && await backupFile.exists()) {
+          await backupFile.copy(_gardenFile!.path);
+        }
+        if (await tempFile.exists()) await tempFile.delete();
+      } catch (restoreError) {
+        debugPrint(
+            'Не удалось восстановить файл сада после сбоя: $restoreError');
+      }
       return false;
     }
+  }
+
+  Future<List<Plant>> _readPlantsFile(File file) async {
+    final decoded = jsonDecode(await file.readAsString());
+    if (decoded is! List) {
+      throw const FormatException('Файл сада должен содержать JSON-массив');
+    }
+    final plants = <Plant>[];
+    for (final item in decoded) {
+      if (item is! Map<String, dynamic>) continue;
+      try {
+        plants.add(Plant.fromJson(item));
+      } catch (e) {
+        debugPrint('Пропущена повреждённая запись растения: $e');
+      }
+    }
+    return plants;
   }
 
   // ---------------------------------------------------------------------
@@ -236,12 +286,17 @@ class PlantStore extends ChangeNotifier {
       scientificName: info['scientific_name'] as String? ?? '',
       imagePath: savedImagePath,
       wateringFrequency: frequency,
-      wateringAmount: info['watering_amount'] as String? ?? '200-300 мл',
-      lightRequirements: info['light_requirements'] as String? ?? 'Умеренное',
+      wateringAmount: info['watering_amount'] as String? ??
+          (localeCode == 'en' ? '200-300 ml' : '200-300 мл'),
+      lightRequirements: info['light_requirements'] as String? ??
+          (localeCode == 'en' ? 'Moderate light' : 'Умеренное освещение'),
       temperature: info['temperature'] as String? ?? '18-24°C',
-      humidity: info['humidity'] as String? ?? 'Средняя',
-      careTips: info['care_tips'] as String? ?? 'Регулярный уход',
-      difficulty: info['difficulty'] as String? ?? 'средне',
+      humidity: info['humidity'] as String? ??
+          (localeCode == 'en' ? 'Medium' : 'Средняя'),
+      careTips: info['care_tips'] as String? ??
+          (localeCode == 'en' ? 'Regular care' : 'Регулярный уход'),
+      difficulty: info['difficulty'] as String? ??
+          (localeCode == 'en' ? 'moderate' : 'средне'),
       lastWatered: now,
       nextWatering: nextWatering,
       wateringHistory: [now],
@@ -256,8 +311,15 @@ class PlantStore extends ChangeNotifier {
     _plants.add(plant);
     final saved = await _saveGarden();
     if (!saved) {
-      _plants
-          .removeLast(); // откатываем — как и Python-версия делает plants.pop() при неудаче
+      _plants.removeLast();
+      if (savedImagePath != null) {
+        try {
+          final imageFile = File(savedImagePath);
+          if (await imageFile.exists()) await imageFile.delete();
+        } catch (imageError) {
+          debugPrint('Не удалось удалить сиротское фото: $imageError');
+        }
+      }
       throw StateError('Не удалось сохранить растение на диск');
     }
 
@@ -445,8 +507,12 @@ class PlantStore extends ChangeNotifier {
   Future<bool> importGarden(String srcZipPath) async {
     await _ensureInitialized();
     List<Plant>? previousPlants;
+    List<int>? previousGardenBytes;
     final previousImageBytes = <String, List<int>?>{};
     try {
+      if (await _gardenFile!.exists()) {
+        previousGardenBytes = await _gardenFile!.readAsBytes();
+      }
       final sourceFile = File(srcZipPath);
       if (!await sourceFile.exists() ||
           await sourceFile.length() > 50 * 1024 * 1024) {
@@ -561,6 +627,7 @@ class PlantStore extends ChangeNotifier {
       final saved = await _saveGarden();
       if (!saved) {
         _plants = oldPlants;
+        await _restoreGardenBytes(previousGardenBytes);
         await _restoreImportedImages(previousImageBytes);
         return false;
       }
@@ -576,9 +643,19 @@ class PlantStore extends ChangeNotifier {
       return true;
     } catch (e) {
       if (previousPlants != null) _plants = previousPlants;
+      await _restoreGardenBytes(previousGardenBytes);
       await _restoreImportedImages(previousImageBytes);
       debugPrint('Не удалось импортировать сад: $e');
       return false;
+    }
+  }
+
+  Future<void> _restoreGardenBytes(List<int>? bytes) async {
+    if (bytes == null) return;
+    try {
+      await _gardenFile!.writeAsBytes(bytes, flush: true);
+    } catch (e) {
+      debugPrint('Не удалось откатить JSON сада после импорта: $e');
     }
   }
 
@@ -621,7 +698,9 @@ class PlantStore extends ChangeNotifier {
       final lines = <String>[
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//МойСад//Plant Garden App//RU',
+        localeCode == 'en'
+            ? 'PRODID:-//Floraqua//Floraqua App//EN'
+            : 'PRODID:-//Floraqua//Floraqua App//RU',
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
       ];
@@ -638,15 +717,27 @@ class PlantStore extends ChangeNotifier {
               '${occurrence.year}${twoDigits(occurrence.month)}${twoDigits(occurrence.day)}';
           final frequency = SeasonalWatering.frequencyFor(
               plant.wateringFrequency, occurrence);
-          final summary = escape('Полить: ${plant.displayName}');
+          final summary = escape(localeCode == 'en'
+              ? 'Water: ${plant.displayName}'
+              : 'Полить: ${plant.displayName}');
           final descriptionParts = <String>[
-            'Базовый интервал: ${plant.wateringFrequency} дн.',
-            'Сезонный интервал: $frequency дн.',
-            'Время напоминания: $reminderTimeLabel.',
-            'Перед поливом проверьте грунт.',
+            localeCode == 'en'
+                ? 'Base interval: every ${plant.wateringFrequency} days'
+                : 'Базовый интервал: ${plant.wateringFrequency} дн.',
+            localeCode == 'en'
+                ? 'Seasonal interval: every $frequency days'
+                : 'Сезонный интервал: $frequency дн.',
+            localeCode == 'en'
+                ? 'Reminder time: $reminderTimeLabel.'
+                : 'Время напоминания: $reminderTimeLabel.',
+            localeCode == 'en'
+                ? 'Check the soil before watering.'
+                : 'Перед поливом проверьте грунт.',
           ];
           if (plant.wateringAmount.isNotEmpty) {
-            descriptionParts.add('Норма полива: ${plant.wateringAmount}');
+            descriptionParts.add(localeCode == 'en'
+                ? 'Water amount: ${plant.wateringAmount}'
+                : 'Норма полива: ${plant.wateringAmount}');
           }
           if (plant.scientificName.isNotEmpty) {
             descriptionParts.add(plant.scientificName);

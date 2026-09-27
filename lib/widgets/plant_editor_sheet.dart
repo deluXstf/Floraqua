@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n_extensions.dart';
 import '../theme/app_theme.dart';
 
 Future<PlantFormData?> showPlantDetailsSheet(
@@ -72,6 +73,7 @@ class PlantDetailsSheet extends StatefulWidget {
   final bool isEditing;
 
   const PlantDetailsSheet({
+    super.key,
     this.initialName,
     this.initialNotes,
     this.initialPotSize,
@@ -154,8 +156,7 @@ class _PlantDetailsSheetState extends State<PlantDetailsSheet> {
       final raw = _frequencyController.text.trim();
       frequency = int.tryParse(raw);
       if (frequency == null || frequency < 1 || frequency > 30) {
-        setState(
-            () => _frequencyError = 'Частота полива: число от 1 до 30 дней');
+        setState(() => _frequencyError = context.l10n.frequencyValidation);
         return;
       }
     }
@@ -191,15 +192,17 @@ class _PlantDetailsSheetState extends State<PlantDetailsSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              widget.isEditing ? 'Изменить растение' : 'Новое растение',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              widget.isEditing
+                  ? context.l10n.plantEditorEditTitle
+                  : context.l10n.plantEditorNewTitle,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Название (необязательно)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.plantNameOptional,
+                border: const OutlineInputBorder(),
               ),
             ),
             if (widget.isEditing) ...[
@@ -208,7 +211,7 @@ class _PlantDetailsSheetState extends State<PlantDetailsSheet> {
                 controller: _frequencyController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: 'Базовая частота полива (дней)',
+                  labelText: context.l10n.wateringFrequencyField,
                   border: const OutlineInputBorder(),
                   errorText: _frequencyError,
                 ),
@@ -217,10 +220,10 @@ class _PlantDetailsSheetState extends State<PlantDetailsSheet> {
               InkWell(
                 onTap: _pickLastWateredDate,
                 child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Дата последнего полива',
-                    border: OutlineInputBorder(),
-                    suffixIcon: Icon(Icons.calendar_today, size: 18),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.lastWateredDate,
+                    border: const OutlineInputBorder(),
+                    suffixIcon: const Icon(Icons.calendar_today, size: 18),
                   ),
                   child: Row(
                     children: [
@@ -229,10 +232,10 @@ class _PlantDetailsSheetState extends State<PlantDetailsSheet> {
                           _lastWatered != null
                               ? '${_lastWatered!.day}.${_lastWatered!.month}.${_lastWatered!.year}'
                               : _clearLastWatered
-                                  ? 'Дата будет очищена'
+                                  ? context.l10n.dateWillClear
                                   : widget.initialLastWatered == null
-                                      ? 'Не задана'
-                                      : 'Не менять',
+                                      ? context.l10n.dateNotSet
+                                      : context.l10n.dateDoNotChange,
                         ),
                       ),
                       if (widget.initialLastWatered != null &&
@@ -242,7 +245,7 @@ class _PlantDetailsSheetState extends State<PlantDetailsSheet> {
                             _lastWatered = null;
                             _clearLastWatered = true;
                           }),
-                          child: const Text('Очистить'),
+                          child: Text(context.l10n.commonClear),
                         ),
                     ],
                   ),
@@ -251,9 +254,7 @@ class _PlantDetailsSheetState extends State<PlantDetailsSheet> {
               Padding(
                 padding: const EdgeInsets.only(top: 6, left: 4),
                 child: Text(
-                  'Это базовый интервал: приложение корректирует его по сезону. '
-                  'Дата следующего полива пересчитается по выбранной частоте '
-                  'и/или дате последнего полива.',
+                  context.l10n.wateringIntervalHelp,
                   style: TextStyle(
                     fontSize: 11,
                     color: context.floraqua.textSecondary,
@@ -262,29 +263,27 @@ class _PlantDetailsSheetState extends State<PlantDetailsSheet> {
               ),
             ],
             const SizedBox(height: 12),
-            _buildDropdown('Размер горшка', _potSizeOptions, _potSize,
+            _buildDropdown(context.l10n.potSize, _potSizeOptions, _potSize,
                 (v) => setState(() => _potSize = v)),
             const SizedBox(height: 12),
-            _buildDropdown('Место расположения', _locationOptions, _location,
-                (v) => setState(() => _location = v)),
+            _buildDropdown(context.l10n.locationLabel, _locationOptions,
+                _location, (v) => setState(() => _location = v)),
             const SizedBox(height: 12),
-            _buildDropdown('Дренажные отверстия', _drainageOptions, _drainage,
-                (v) => setState(() => _drainage = v)),
+            _buildDropdown(context.l10n.drainageHoles, _drainageOptions,
+                _drainage, (v) => setState(() => _drainage = v)),
             const SizedBox(height: 12),
             TextField(
               controller: _notesController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Другие примечания для ИИ (необязательно)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.notesForAiLabel,
+                border: const OutlineInputBorder(),
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(top: 6, left: 4),
               child: Text(
-                'Это просто заметка на будущее — ИИ прочитает её при следующем '
-                'анализе фото («Проверить»), но сохранение формы её не отправляет '
-                'и ни на что не влияет прямо сейчас.',
+                context.l10n.notesForAiHelp,
                 style: TextStyle(
                   fontSize: 11,
                   color: context.floraqua.textSecondary,
@@ -300,7 +299,7 @@ class _PlantDetailsSheetState extends State<PlantDetailsSheet> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 onPressed: _submit,
-                child: const Text('Продолжить'),
+                child: Text(context.l10n.commonContinue),
               ),
             ),
           ],
@@ -318,9 +317,48 @@ class _PlantDetailsSheetState extends State<PlantDetailsSheet> {
         border: const OutlineInputBorder(),
       ),
       items: options
-          .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+          .map((o) => DropdownMenuItem(
+                value: o,
+                child: Text(_localizedOption(context, o)),
+              ))
           .toList(),
       onChanged: onChanged,
     );
   }
 }
+
+String _localizedOption(BuildContext context, String value) => switch (value) {
+      'Маленький (до 10 см)' || 'Small (up to 10 cm)' => context.l10n.potSmall,
+      'Средний (10-20 см)' ||
+      'Средний (10–20 см)' ||
+      'Medium (10–20 cm)' =>
+        context.l10n.potMedium,
+      'Большой (20-30 см)' ||
+      'Большой (20–30 см)' ||
+      'Large (20–30 cm)' =>
+        context.l10n.potLarge,
+      'Очень большой (30+ см)' ||
+      'Extra large (30+ cm)' =>
+        context.l10n.potExtraLarge,
+      'Южное окно' || 'South-facing window' => context.l10n.locationSouthWindow,
+      'Северное окно' ||
+      'North-facing window' =>
+        context.l10n.locationNorthWindow,
+      'Восточное окно' ||
+      'East-facing window' =>
+        context.l10n.locationEastWindow,
+      'Западное окно' ||
+      'West-facing window' =>
+        context.l10n.locationWestWindow,
+      'Подальше от окна' ||
+      'Away from a window' =>
+        context.l10n.locationAwayFromWindow,
+      'Балкон/лоджия' ||
+      'Балкон / лоджия' ||
+      'Balcony / loggia' =>
+        context.l10n.locationBalcony,
+      'Да' || 'Yes' => context.l10n.yes,
+      'Нет' || 'No' => context.l10n.no,
+      'Не знаю' || "Don't know" => context.l10n.unknown,
+      _ => value,
+    };

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plant_garden/l10n/generated/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:plant_garden/screens/garden_plant_actions.dart';
 
@@ -9,6 +10,9 @@ void main() {
       ImageSource? selectedSource;
       await tester.pumpWidget(
         MaterialApp(
+          locale: const Locale('ru'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: ThemeData(platform: platform),
           home: Builder(
             builder: (context) => Scaffold(

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../models/plant.dart';
+import '../l10n/l10n_extensions.dart';
 import '../services/plant_store.dart';
 import '../services/seasonal_watering.dart';
 import '../theme/app_theme.dart';
@@ -36,8 +37,8 @@ class PlantDetailsScreen extends StatelessWidget {
         final plant = store.getPlant(plantId);
         if (plant == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Растение')),
-            body: const Center(child: Text('Растение больше не найдено.')),
+            appBar: AppBar(title: Text(context.l10n.plantDetailsTitle)),
+            body: Center(child: Text(context.l10n.plantNotFound)),
           );
         }
         final now = DateTime.now();
@@ -45,16 +46,15 @@ class PlantDetailsScreen extends StatelessWidget {
           plant.wateringFrequency,
           now,
         );
-        final season = SeasonalWatering.seasonName(
-          SeasonalWatering.seasonForDate(now),
-        );
+        final season = context.seasonLabel(SeasonalWatering.seasonForDate(now));
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(plant.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
+            title: Text(plant.displayName,
+                maxLines: 1, overflow: TextOverflow.ellipsis),
             actions: [
               PopupMenuButton<String>(
-                tooltip: 'Действия',
+                tooltip: context.l10n.plantActionsTooltip,
                 onSelected: (action) {
                   switch (action) {
                     case 'edit':
@@ -70,21 +70,21 @@ class PlantDetailsScreen extends StatelessWidget {
                 },
                 itemBuilder: (context) => [
                   if (onEdit != null)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'edit',
                       child: ListTile(
                         dense: true,
-                        leading: Icon(Icons.edit_outlined),
-                        title: Text('Изменить'),
+                        leading: const Icon(Icons.edit_outlined),
+                        title: Text(context.l10n.commonEdit),
                       ),
                     ),
                   if (onCheck != null)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'check',
                       child: ListTile(
                         dense: true,
-                        leading: Icon(Icons.photo_camera_outlined),
-                        title: Text('Перепроверить по фото'),
+                        leading: const Icon(Icons.photo_camera_outlined),
+                        title: Text(context.l10n.recheckPhoto),
                       ),
                     ),
                   if (onDelete != null)
@@ -92,8 +92,9 @@ class PlantDetailsScreen extends StatelessWidget {
                       value: 'delete',
                       child: ListTile(
                         dense: true,
-                        leading: Icon(Icons.delete_outline, color: context.floraqua.error),
-                        title: Text('Удалить растение'),
+                        leading: Icon(Icons.delete_outline,
+                            color: context.floraqua.error),
+                        title: Text(context.l10n.deletePlantMenu),
                       ),
                     ),
                 ],
@@ -235,25 +236,27 @@ class _DetailsContent extends StatelessWidget {
         const SizedBox(height: 14),
         _SummaryCard(
           icon: Icons.water_drop_outlined,
-          title: 'Полив',
-          value: 'Каждые $frequency дней · $season',
-          detail:
-              'Следующий: ${_formatDate(plant.nextWatering)} · уведомление в $reminderTimeLabel',
+          title: context.l10n.wateringLabel,
+          value: '${context.l10n.wateringFrequency(frequency)} · $season',
+          detail: context.l10n.nextWateringDetails(
+            _formatDate(context, plant.nextWatering),
+            reminderTimeLabel,
+          ),
         ),
         if (plant.lastWatered != null) ...[
           const SizedBox(height: 8),
           _SummaryCard(
             icon: Icons.history,
-            title: 'Последний полив',
-            value: _formatDate(plant.lastWatered!),
-            detail: '${plant.wateringHistory.length} записей в истории',
+            title: context.l10n.lastWatering,
+            value: _formatDate(context, plant.lastWatered!),
+            detail: context.l10n.historyCount(plant.wateringHistory.length),
           ),
         ],
         const SizedBox(height: 14),
         FilledButton.icon(
           onPressed: onWater,
-          icon: Icon(Icons.water_drop_outlined),
-          label: const Text('Отметить полив'),
+          icon: const Icon(Icons.water_drop_outlined),
+          label: Text(context.l10n.markWatered),
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
             backgroundColor: context.floraqua.primary,
@@ -282,44 +285,46 @@ class _CareSections extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _SectionCard(
-          title: 'Условия содержания',
+          title: context.l10n.careConditions,
           icon: Icons.tune,
           child: Column(
             children: [
               _DetailRow(
                 icon: Icons.wb_sunny_outlined,
-                label: 'Освещение',
+                label: context.l10n.lightLabel,
                 value: plant.lightRequirements,
               ),
               _DetailRow(
                 icon: Icons.thermostat_outlined,
-                label: 'Температура',
+                label: context.l10n.temperatureLabel,
                 value: plant.temperature,
               ),
               _DetailRow(
                 icon: Icons.opacity_outlined,
-                label: 'Влажность воздуха',
+                label: context.l10n.humidityLabel,
                 value: plant.humidity,
               ),
               _DetailRow(
                 icon: Icons.spa_outlined,
-                label: 'Сложность ухода',
-                value: plant.difficulty,
+                label: context.l10n.difficultyLabel,
+                value: _localizeDifficulty(context, plant.difficulty),
               ),
               _DetailRow(
                 icon: Icons.water_outlined,
-                label: 'Базовый интервал полива',
-                value: 'Каждые ${plant.wateringFrequency} дней',
+                label: context.l10n.baseWateringInterval,
+                value: context.l10n.wateringFrequency(plant.wateringFrequency),
               ),
               _DetailRow(
                 icon: Icons.local_drink_outlined,
-                label: 'Ориентировочная норма',
+                label: context.l10n.estimatedWaterAmount,
                 value: plant.wateringAmount,
               ),
               _DetailRow(
                 icon: Icons.calendar_today_outlined,
-                label: 'Сейчас, $season',
-                value: 'Ориентировочно каждые $frequency дней',
+                label: context.l10n.seasonCurrent(season),
+                value: context.l10n.estimatedWaterFrequency(
+                  context.l10n.wateringFrequency(frequency),
+                ),
                 last: true,
               ),
             ],
@@ -328,7 +333,7 @@ class _CareSections extends StatelessWidget {
         const SizedBox(height: 14),
         if (plant.careTips.isNotEmpty)
           _TextSection(
-            title: 'Советы по уходу',
+            title: context.l10n.careTips,
             icon: Icons.eco_outlined,
             text: plant.careTips,
             color: context.floraqua.primaryLight,
@@ -337,7 +342,7 @@ class _CareSections extends StatelessWidget {
           const SizedBox(height: 14),
         if (plant.moistureNotes.isNotEmpty)
           _TextSection(
-            title: 'Оценка по последнему фото',
+            title: context.l10n.lastPhotoAssessment,
             icon: Icons.smart_toy_outlined,
             text: plant.moistureNotes,
             color: context.floraqua.aiBubble,
@@ -345,15 +350,15 @@ class _CareSections extends StatelessWidget {
         if (plant.wateringHistory.isNotEmpty) ...[
           const SizedBox(height: 14),
           _SectionCard(
-            title: 'История полива',
+            title: context.l10n.wateringHistory,
             icon: Icons.history,
             child: Column(
               children: [
                 for (final date in plant.wateringHistory.reversed.take(10))
                   _DetailRow(
                     icon: Icons.check_circle_outline,
-                    label: 'Полито',
-                    value: _formatDate(date),
+                    label: context.l10n.watered,
+                    value: _formatDate(context, date),
                     last: date == plant.wateringHistory.first,
                   ),
               ],
@@ -363,7 +368,7 @@ class _CareSections extends StatelessWidget {
         if (plant.userNotes?.isNotEmpty ?? false) ...[
           const SizedBox(height: 14),
           _TextSection(
-            title: 'Мои заметки',
+            title: context.l10n.myNotes,
             icon: Icons.sticky_note_2_outlined,
             text: plant.userNotes!,
             color: context.floraqua.surface,
@@ -374,24 +379,24 @@ class _CareSections extends StatelessWidget {
             (plant.hasDrainage?.isNotEmpty ?? false)) ...[
           const SizedBox(height: 14),
           _SectionCard(
-            title: 'Место и горшок',
+            title: context.l10n.placeAndPot,
             icon: Icons.yard_outlined,
             child: Column(
               children: [
                 _DetailRow(
                   icon: Icons.crop_square,
-                  label: 'Размер горшка',
-                  value: plant.potSize ?? 'Не указано',
+                  label: context.l10n.potSize,
+                  value: _localizePotSize(context, plant.potSize),
                 ),
                 _DetailRow(
                   icon: Icons.place_outlined,
-                  label: 'Расположение',
-                  value: plant.location ?? 'Не указано',
+                  label: context.l10n.locationLabel,
+                  value: _localizeLocation(context, plant.location),
                 ),
                 _DetailRow(
                   icon: Icons.water_damage_outlined,
-                  label: 'Дренажные отверстия',
-                  value: plant.hasDrainage ?? 'Не указано',
+                  label: context.l10n.drainageHoles,
+                  value: _localizeDrainage(context, plant.hasDrainage),
                   last: true,
                 ),
               ],
@@ -399,11 +404,12 @@ class _CareSections extends StatelessWidget {
           ),
         ],
         Padding(
-          padding: EdgeInsets.only(top: 12),
+          padding: const EdgeInsets.only(top: 12),
           child: Text(
-            'График полива — ориентир. Перед поливом проверьте влажность грунта.',
+            context.l10n.wateringDisclaimer,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: context.floraqua.textSecondary),
+            style:
+                TextStyle(fontSize: 12, color: context.floraqua.textSecondary),
           ),
         ),
       ],
@@ -446,7 +452,7 @@ class _SummaryCard extends StatelessWidget {
                         fontSize: 12, color: context.floraqua.textSecondary)),
                 const SizedBox(height: 2),
                 Text(value,
-                    style: TextStyle(fontWeight: FontWeight.w700)),
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
                 Text(detail,
                     style: TextStyle(
                         fontSize: 12, color: context.floraqua.textSecondary)),
@@ -487,7 +493,7 @@ class _SectionCard extends StatelessWidget {
               Icon(icon, color: context.floraqua.primary),
               const SizedBox(width: 8),
               Text(title,
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w700)),
             ],
           ),
@@ -530,7 +536,7 @@ class _DetailRow extends StatelessWidget {
                         fontSize: 12, color: context.floraqua.textSecondary)),
                 const SizedBox(height: 2),
                 Text(value,
-                    style: TextStyle(fontWeight: FontWeight.w600)),
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -577,7 +583,7 @@ class _TextSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(text, style: TextStyle(height: 1.4)),
+          Text(text, style: const TextStyle(height: 1.4)),
         ],
       ),
     );
@@ -603,5 +609,68 @@ int _daysUntilWatering(DateTime date) {
       .inDays;
 }
 
-String _formatDate(DateTime date) =>
-    '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+String _formatDate(BuildContext context, DateTime date) =>
+    MaterialLocalizations.of(context).formatMediumDate(date);
+
+String _localizeDifficulty(BuildContext context, String value) =>
+    switch (value.toLowerCase()) {
+      'легко' || 'easy' => context.l10n.difficultyEasy,
+      'сложно' || 'challenging' || 'hard' => context.l10n.difficultyHard,
+      'средне' || 'moderate' || 'medium' => context.l10n.difficultyMedium,
+      _ => value,
+    };
+
+String _localizePotSize(BuildContext context, String? value) => switch (value) {
+      'Маленький' ||
+      'Маленький (до 10 см)' ||
+      'Small (up to 10 cm)' =>
+        context.l10n.potSmall,
+      'Средний' ||
+      'Средний (10-20 см)' ||
+      'Средний (10–20 см)' ||
+      'Medium (10–20 cm)' =>
+        context.l10n.potMedium,
+      'Большой' ||
+      'Большой (20-30 см)' ||
+      'Большой (20–30 см)' ||
+      'Large (20–30 cm)' =>
+        context.l10n.potLarge,
+      'Очень большой' ||
+      'Очень большой (30+ см)' ||
+      'Extra large (30+ cm)' =>
+        context.l10n.potExtraLarge,
+      null || '' => context.l10n.notSpecified,
+      _ => value,
+    };
+
+String _localizeLocation(BuildContext context, String? value) =>
+    switch (value) {
+      'Южное окно' || 'South-facing window' => context.l10n.locationSouthWindow,
+      'Северное окно' ||
+      'North-facing window' =>
+        context.l10n.locationNorthWindow,
+      'Восточное окно' ||
+      'East-facing window' =>
+        context.l10n.locationEastWindow,
+      'Западное окно' ||
+      'West-facing window' =>
+        context.l10n.locationWestWindow,
+      'Подальше от окна' ||
+      'Away from a window' =>
+        context.l10n.locationAwayFromWindow,
+      'Балкон/лоджия' ||
+      'Балкон / лоджия' ||
+      'Balcony / loggia' =>
+        context.l10n.locationBalcony,
+      null || '' => context.l10n.notSpecified,
+      _ => value,
+    };
+
+String _localizeDrainage(BuildContext context, String? value) =>
+    switch (value) {
+      'Да' || 'Yes' => context.l10n.yes,
+      'Нет' || 'No' => context.l10n.no,
+      'Не знаю' || "Don't know" => context.l10n.unknown,
+      null || '' => context.l10n.notSpecified,
+      _ => value,
+    };

@@ -4,18 +4,26 @@ import 'package:plant_garden/services/seasonal_watering.dart';
 void main() {
   group('SeasonalWatering.seasonForDate', () {
     test('распределяет месяцы по сезонам Северного полушария', () {
-      expect(SeasonalWatering.seasonName(
-        SeasonalWatering.seasonForDate(DateTime(2026, 3, 1)),
-      ), 'весна');
-      expect(SeasonalWatering.seasonName(
-        SeasonalWatering.seasonForDate(DateTime(2026, 6, 1)),
-      ), 'лето');
-      expect(SeasonalWatering.seasonName(
-        SeasonalWatering.seasonForDate(DateTime(2026, 9, 1)),
-      ), 'осень');
-      expect(SeasonalWatering.seasonName(
-        SeasonalWatering.seasonForDate(DateTime(2026, 12, 1)),
-      ), 'зима');
+      expect(
+          SeasonalWatering.seasonName(
+            SeasonalWatering.seasonForDate(DateTime(2026, 3, 1)),
+          ),
+          'весна');
+      expect(
+          SeasonalWatering.seasonName(
+            SeasonalWatering.seasonForDate(DateTime(2026, 6, 1)),
+          ),
+          'лето');
+      expect(
+          SeasonalWatering.seasonName(
+            SeasonalWatering.seasonForDate(DateTime(2026, 9, 1)),
+          ),
+          'осень');
+      expect(
+          SeasonalWatering.seasonName(
+            SeasonalWatering.seasonForDate(DateTime(2026, 12, 1)),
+          ),
+          'зима');
       expect(SeasonalWatering.seasonForDate(DateTime(2026, 1, 1)),
           PlantSeason.winter);
     });

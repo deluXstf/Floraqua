@@ -21,6 +21,8 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          # Обновлять версию отдельным PR после локальной проверки.
+          flutter-version: '3.32.8'
           channel: stable
           cache: true
 
@@ -28,13 +30,19 @@ jobs:
         run: flutter --version
 
       - name: Get dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
+
+      - name: Generate localizations
+        run: flutter gen-l10n
 
       - name: Analyze Dart code
         run: flutter analyze
 
       - name: Run tests
         run: flutter test --reporter expanded
+
+      - name: Test coverage
+        run: flutter test --coverage
 
       - name: Build Windows release
         run: flutter build windows --release

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../l10n/l10n_extensions.dart';
 import '../theme/app_theme.dart';
 
 /// Кольцевой индикатор полива — аналог кольца на карточке растения в
@@ -45,7 +46,9 @@ class WateringRing extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                daysUntilWatering <= 0 ? 'Полить' : '$daysUntilWatering дн.',
+                daysUntilWatering <= 0
+                    ? context.l10n.waterNow
+                    : context.l10n.wateringDaysShort(daysUntilWatering),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 style: TextStyle(

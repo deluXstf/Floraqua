@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../services/plant_store.dart';
 import '../services/secure_storage_service.dart';
+import '../l10n/l10n_extensions.dart';
 import '../theme/app_theme.dart';
 
 /// Экран настроек — аналог окна "О программе" из Python-версии: экспорт/
@@ -12,6 +13,8 @@ class SettingsScreen extends StatelessWidget {
   final SecureStorageService secureStorage;
   final ThemeMode themeMode;
   final Future<void> Function(ThemeMode) onThemeModeChanged;
+  final String localeCode;
+  final Future<void> Function(String) onLocaleCodeChanged;
   final VoidCallback onChangeApiKey;
 
   const SettingsScreen({
@@ -20,13 +23,17 @@ class SettingsScreen extends StatelessWidget {
     required this.secureStorage,
     required this.themeMode,
     required this.onThemeModeChanged,
+    this.localeCode = 'ru',
+    this.onLocaleCodeChanged = _ignoreLocaleChange,
     required this.onChangeApiKey,
   });
+
+  static Future<void> _ignoreLocaleChange(String _) async {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Настройки')),
+      appBar: AppBar(title: Text(context.l10n.settingsTitle)),
       body: Center(
         child: ConstrainedBox(
           // Оставляем удобную читаемую ширину и центрируем настройки на ПК.
@@ -43,9 +50,23 @@ class SettingsScreen extends StatelessWidget {
                     if (context.mounted) {
                       _showSnack(
                         context,
-                        'Не удалось сохранить тему: $error',
+                        context.l10n.themeSaveError,
                         isError: true,
                       );
+                    }
+                    rethrow;
+                  }
+                },
+              ),
+              _LanguageTile(
+                value: localeCode,
+                onChanged: (code) async {
+                  try {
+                    await onLocaleCodeChanged(code);
+                  } catch (_) {
+                    if (context.mounted) {
+                      _showSnack(context, context.l10n.localeSaveError,
+                          isError: true);
                     }
                     rethrow;
                   }
@@ -67,7 +88,7 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Версия 1.1.0 (Flutter)',
+                        context.l10n.appVersion,
                         style: TextStyle(
                           color: context.floraqua.textSecondary,
                         ),
@@ -78,38 +99,37 @@ class SettingsScreen extends StatelessWidget {
               ),
               _SettingsTile(
                 icon: Icons.upload_file_outlined,
-                title: 'Экспорт сада (.zip)',
-                subtitle:
-                    'Данные и фото всех растений — для переноса или бэкапа',
+                title: context.l10n.exportGardenTitle,
+                subtitle: context.l10n.exportGardenSubtitle,
                 onTap: () => _exportGarden(context),
               ),
               _SettingsTile(
                 icon: Icons.download_outlined,
-                title: 'Импорт сада (.zip)',
-                subtitle: 'Полностью заменит текущий список растений',
+                title: context.l10n.importGardenTitle,
+                subtitle: context.l10n.importGardenSubtitle,
                 onTap: () => _importGarden(context),
               ),
               _SettingsTile(
                 icon: Icons.calendar_month_outlined,
-                title: 'Календарь полива (.ics)',
-                subtitle: 'Сезонные даты на год для календарей Google, Outlook '
-                    'и Apple; экспорт нужно обновлять вручную',
+                title: context.l10n.calendarTitle,
+                subtitle: context.l10n.calendarSubtitle,
                 onTap: () => _exportCalendar(context),
               ),
               ListenableBuilder(
                 listenable: store,
                 builder: (context, _) => _SettingsTile(
                   icon: Icons.notifications_active_outlined,
-                  title: 'Время напоминания о поливе',
-                  subtitle: 'Каждый день полива в ${store.reminderTimeLabel}',
+                  title: context.l10n.reminderTitle,
+                  subtitle:
+                      context.l10n.reminderSubtitle(store.reminderTimeLabel),
                   onTap: () => _chooseReminderTime(context),
                 ),
               ),
               const Divider(height: 32),
               _SettingsTile(
                 icon: Icons.vpn_key_outlined,
-                title: 'Сменить API-ключ',
-                subtitle: 'Ввести другой персональный ключ Gemini',
+                title: context.l10n.changeApiTitle,
+                subtitle: context.l10n.changeApiSubtitle,
                 onTap: () => _changeApiKey(context),
               ),
             ],
@@ -136,15 +156,15 @@ class SettingsScreen extends StatelessWidget {
       builder: (context, child) {
         final compactTheme = Theme.of(context).copyWith(
           timePickerTheme: TimePickerThemeData(
-            hourMinuteTextStyle: TextStyle(
+            hourMinuteTextStyle: const TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.w600,
             ),
-            hourMinuteShape: RoundedRectangleBorder(
+            hourMinuteShape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
             hourMinuteColor: context.floraqua.primaryLight,
-            dialTextStyle: TextStyle(fontSize: 13),
+            dialTextStyle: const TextStyle(fontSize: 13),
             dialHandColor: context.floraqua.primary,
           ),
         );
@@ -162,16 +182,16 @@ class SettingsScreen extends StatelessWidget {
       if (!context.mounted) return;
       _showSnack(
         context,
-        'Напоминания будут приходить в ${store.reminderTimeLabel}',
+        context.l10n.reminderSaved(store.reminderTimeLabel),
       );
     } catch (e) {
       if (!context.mounted) return;
-      _showSnack(context, 'Не удалось сохранить время напоминания: $e',
-          isError: true);
+      _showSnack(context, context.l10n.reminderSaveError, isError: true);
     }
   }
 
-  void _showSnack(BuildContext context, String message, {bool isError = false}) {
+  void _showSnack(BuildContext context, String message,
+      {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -182,7 +202,7 @@ class SettingsScreen extends StatelessWidget {
 
   Future<void> _exportGarden(BuildContext context) async {
     final path = await FilePicker.platform.saveFile(
-      dialogTitle: 'Сохранить экспорт сада',
+      dialogTitle: context.l10n.exportDialogTitle,
       fileName: 'my_garden_export_${_timestamp()}.zip',
       type: FileType.custom,
       allowedExtensions: ['zip'],
@@ -194,7 +214,7 @@ class SettingsScreen extends StatelessWidget {
     if (!context.mounted) return;
     _showSnack(
       context,
-      ok ? 'Сад экспортирован' : 'Не удалось экспортировать сад',
+      ok ? context.l10n.exportSuccess : context.l10n.exportFailure,
       isError: !ok,
     );
   }
@@ -203,20 +223,16 @@ class SettingsScreen extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Импорт сада'),
-        content: const Text(
-          'Импорт ПОЛНОСТЬЮ заменит текущий список растений данными из '
-          'архива.\n\nТекущие данные будут на всякий случай сохранены '
-          'отдельным файлом перед заменой.\n\nПродолжить?',
-        ),
+        title: Text(context.l10n.importConfirmTitle),
+        content: Text(context.l10n.importConfirmBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Отмена'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Продолжить'),
+            child: Text(context.l10n.commonContinue),
           ),
         ],
       ),
@@ -224,7 +240,7 @@ class SettingsScreen extends StatelessWidget {
     if (confirmed != true || !context.mounted) return;
 
     final result = await FilePicker.platform.pickFiles(
-      dialogTitle: 'Выбрать файл экспорта сада',
+      dialogTitle: context.l10n.importFileDialogTitle,
       type: FileType.custom,
       allowedExtensions: ['zip'],
     );
@@ -235,16 +251,14 @@ class SettingsScreen extends StatelessWidget {
     if (!context.mounted) return;
     _showSnack(
       context,
-      ok
-          ? 'Сад импортирован'
-          : 'Не удалось импортировать сад — проверьте, что выбран корректный файл экспорта',
+      ok ? context.l10n.importSuccess : context.l10n.importFailure,
       isError: !ok,
     );
   }
 
   Future<void> _exportCalendar(BuildContext context) async {
     final path = await FilePicker.platform.saveFile(
-      dialogTitle: 'Сохранить календарь полива',
+      dialogTitle: context.l10n.calendarSaveDialogTitle,
       fileName: 'watering_calendar_${_timestamp()}.ics',
       type: FileType.custom,
       allowedExtensions: ['ics'],
@@ -256,7 +270,7 @@ class SettingsScreen extends StatelessWidget {
     if (!context.mounted) return;
     _showSnack(
       context,
-      ok ? 'Календарь сохранён' : 'Не удалось создать файл календаря',
+      ok ? context.l10n.calendarSaved : context.l10n.calendarSaveFailure,
       isError: !ok,
     );
   }
@@ -265,19 +279,16 @@ class SettingsScreen extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Сменить API-ключ'),
-        content: const Text(
-          'Текущий ключ будет удалён, и нужно будет ввести новый перед '
-          'дальнейшей работой с приложением.',
-        ),
+        title: Text(context.l10n.changeApiTitle),
+        content: Text(context.l10n.changeApiConfirmBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Отмена'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Сменить'),
+            child: Text(context.l10n.commonChange),
           ),
         ],
       ),
@@ -291,7 +302,7 @@ class SettingsScreen extends StatelessWidget {
       onChangeApiKey();
     } catch (error) {
       if (!context.mounted) return;
-      _showSnack(context, 'Не удалось удалить ключ: $error', isError: true);
+      _showSnack(context, context.l10n.deleteApiKeyError, isError: true);
     }
   }
 }
@@ -317,12 +328,12 @@ class _SettingsTile extends StatelessWidget {
       color: context.floraqua.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.chip),
-            side: BorderSide(color: context.floraqua.divider),
+        side: BorderSide(color: context.floraqua.divider),
       ),
       child: ListTile(
         leading: Icon(icon, color: context.floraqua.primary),
-        title: Text(title, style: TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(subtitle, style: TextStyle(fontSize: 12)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
         onTap: onTap,
       ),
     );
@@ -378,12 +389,12 @@ class _ThemeModeTileState extends State<_ThemeModeTile> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Тема оформления',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                      Text(
+                        context.l10n.themeTitle,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                       Text(
-                        'Выбор сохраняется на этом устройстве',
+                        context.l10n.settingsSavedOnDevice,
                         style: TextStyle(
                           fontSize: 12,
                           color: palette.textSecondary,
@@ -404,18 +415,18 @@ class _ThemeModeTileState extends State<_ThemeModeTile> {
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               ),
-              items: const [
+              items: [
                 DropdownMenuItem(
                   value: ThemeMode.system,
-                  child: Text('Как в системе'),
+                  child: Text(context.l10n.themeSystem),
                 ),
                 DropdownMenuItem(
                   value: ThemeMode.light,
-                  child: Text('Светлая'),
+                  child: Text(context.l10n.themeLight),
                 ),
                 DropdownMenuItem(
                   value: ThemeMode.dark,
-                  child: Text('Тёмная'),
+                  child: Text(context.l10n.themeDark),
                 ),
               ],
               onChanged: (mode) {
@@ -434,6 +445,107 @@ class _ThemeModeTileState extends State<_ThemeModeTile> {
     setState(() => _selected = mode);
     try {
       await widget.onChanged(mode);
+    } catch (_) {
+      if (mounted) setState(() => _selected = previous);
+    }
+  }
+}
+
+class _LanguageTile extends StatefulWidget {
+  final String value;
+  final Future<void> Function(String) onChanged;
+
+  const _LanguageTile({required this.value, required this.onChanged});
+
+  @override
+  State<_LanguageTile> createState() => _LanguageTileState();
+}
+
+class _LanguageTileState extends State<_LanguageTile> {
+  late String _selected;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.value;
+  }
+
+  @override
+  void didUpdateWidget(covariant _LanguageTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) _selected = widget.value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final palette = context.floraqua;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      color: palette.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.chip),
+        side: BorderSide(color: palette.divider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.language_rounded, color: palette.primary),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.languageLabel,
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                      Text(
+                        l10n.settingsSavedOnDevice,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: palette.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              key: ValueKey(_selected),
+              initialValue: _selected,
+              decoration: const InputDecoration(
+                isDense: true,
+                border: OutlineInputBorder(),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+              items: [
+                DropdownMenuItem(
+                    value: 'ru', child: Text(l10n.languageRussian)),
+                DropdownMenuItem(
+                    value: 'en', child: Text(l10n.languageEnglish)),
+              ],
+              onChanged: (code) {
+                if (code != null) _select(code);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _select(String code) async {
+    final previous = _selected;
+    setState(() => _selected = code);
+    try {
+      await widget.onChanged(code);
     } catch (_) {
       if (mounted) setState(() => _selected = previous);
     }

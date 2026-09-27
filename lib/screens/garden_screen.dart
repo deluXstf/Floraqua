@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../models/garden_preferences.dart';
 import '../models/plant.dart';
+import '../l10n/l10n_extensions.dart';
 import '../services/plant_store.dart';
 import '../services/secure_storage_service.dart';
 import '../theme/app_theme.dart';
@@ -15,6 +16,7 @@ import 'garden_plant_actions.dart';
 import 'settings_screen.dart';
 
 Future<void> _ignoreThemeChange(ThemeMode _) async {}
+Future<void> _ignoreLocaleChange(String _) async {}
 
 /// Главный экран — аналог PlantGardenGUI (main.py, Python-версия): сетка
 /// карточек, поиск, фильтры, кнопка добавления. В отличие от Python-версии,
@@ -26,6 +28,8 @@ class GardenScreen extends StatefulWidget {
   final SecureStorageService secureStorage;
   final ThemeMode themeMode;
   final Future<void> Function(ThemeMode) onThemeModeChanged;
+  final String localeCode;
+  final Future<void> Function(String) onLocaleCodeChanged;
   final VoidCallback onChangeApiKey;
 
   const GardenScreen({
@@ -34,6 +38,8 @@ class GardenScreen extends StatefulWidget {
     required this.secureStorage,
     this.themeMode = ThemeMode.system,
     this.onThemeModeChanged = _ignoreThemeChange,
+    this.localeCode = 'ru',
+    this.onLocaleCodeChanged = _ignoreLocaleChange,
     required this.onChangeApiKey,
   });
 
@@ -95,7 +101,7 @@ class _GardenScreenState extends State<GardenScreen>
     });
     if (loadError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Не удалось загрузить сад: $loadError')),
+        SnackBar(content: Text(context.l10n.gardenLoadError)),
       );
     }
   }
@@ -107,7 +113,7 @@ class _GardenScreenState extends State<GardenScreen>
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Не удалось сохранить вид сада')),
+        SnackBar(content: Text(context.l10n.gardenSaveViewError)),
       );
     }
   }
@@ -136,14 +142,14 @@ class _GardenScreenState extends State<GardenScreen>
       final saved = await widget.store.waterPlant(id);
       if (!saved && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось сохранить полив')),
+          SnackBar(content: Text(context.l10n.gardenSaveWaterError)),
         );
       }
       return saved;
     } catch (error) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка при сохранении полива: $error')),
+          SnackBar(content: Text(context.l10n.gardenSaveWaterFailure)),
         );
       }
       return false;
@@ -199,14 +205,16 @@ class _GardenScreenState extends State<GardenScreen>
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings_outlined),
-            tooltip: 'Настройки',
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: context.l10n.gardenSettingsTooltip,
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => SettingsScreen(
                   store: widget.store,
                   secureStorage: widget.secureStorage,
                   themeMode: widget.themeMode,
+                  localeCode: widget.localeCode,
+                  onLocaleCodeChanged: widget.onLocaleCodeChanged,
                   onThemeModeChanged: widget.onThemeModeChanged,
                   onChangeApiKey: widget.onChangeApiKey,
                 ),
@@ -218,8 +226,8 @@ class _GardenScreenState extends State<GardenScreen>
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _actions.addPlant(context),
         backgroundColor: context.floraqua.primary,
-        icon: Icon(Icons.add),
-        label: const Text('Добавить растение'),
+        icon: const Icon(Icons.add),
+        label: Text(context.l10n.addPlant),
       ),
       body: Column(
         children: [

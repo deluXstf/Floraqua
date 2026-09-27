@@ -24,9 +24,11 @@ class GeminiService {
 
   final String apiKey;
   final http.Client _client;
+  String localeCode;
   final Random _random = Random();
 
-  GeminiService({required this.apiKey, http.Client? client})
+  GeminiService(
+      {required this.apiKey, http.Client? client, this.localeCode = 'ru'})
       : _client = client ?? http.Client();
 
   Uri get _endpoint => Uri.parse(
@@ -48,12 +50,13 @@ class GeminiService {
     String? location,
     String? hasDrainage,
   }) async {
-    final prompt = identifyPlantPrompt +
+    final prompt = identifyPlantPromptFor(localeCode) +
         buildGeminiContextBlock(
           potSize: potSize,
           location: location,
           hasDrainage: hasDrainage,
           userNotes: userNotes,
+          localeCode: localeCode,
         );
 
     final response = await _callWithRetry(prompt, imageBytes);
@@ -66,8 +69,26 @@ class GeminiService {
 
     // Частота полива иногда приходит не числом, а строкой вроде "раз в неделю" —
     // не должно ронять приложение (аналог _parse_watering_frequency).
+    final name = data['name'];
+    if (name is! String || name.trim().isEmpty) {
+      throw const GeminiApiException('Gemini не вернул название растения');
+    }
+    data['name'] = name.trim();
     data['watering_frequency'] =
         parseWateringFrequency(data['watering_frequency']);
+    if (data['needs_water_now'] is! bool) data['needs_water_now'] = false;
+    for (final key in [
+      'scientific_name',
+      'watering_amount',
+      'light_requirements',
+      'temperature',
+      'humidity',
+      'care_tips',
+      'difficulty',
+      'moisture_notes',
+    ]) {
+      if (data[key] != null && data[key] is! String) data.remove(key);
+    }
 
     return data;
   }
@@ -82,12 +103,13 @@ class GeminiService {
     String? hasDrainage,
     String? userNotes,
   }) async {
-    final prompt = moisturePrompt +
+    final prompt = moisturePromptFor(localeCode) +
         buildGeminiContextBlock(
           potSize: potSize,
           location: location,
           hasDrainage: hasDrainage,
           userNotes: userNotes,
+          localeCode: localeCode,
         );
 
     final response = await _callWithRetry(prompt, imageBytes,

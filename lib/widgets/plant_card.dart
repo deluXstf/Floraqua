@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/plant.dart';
+import '../l10n/l10n_extensions.dart';
 import '../services/seasonal_watering.dart';
 import '../theme/app_theme.dart';
 import 'watering_ring.dart';
@@ -47,12 +48,13 @@ class PlantCard extends StatelessWidget {
       plant.nextWatering.day,
     );
     final daysUntilWatering = wateringDate.difference(today).inDays;
-    final frequency = SeasonalWatering.frequencyFor(plant.wateringFrequency, now);
-    final season = SeasonalWatering.seasonName(
-      SeasonalWatering.seasonForDate(now),
-    );
+    final frequency =
+        SeasonalWatering.frequencyFor(plant.wateringFrequency, now);
+    final season = context.seasonLabel(SeasonalWatering.seasonForDate(now));
+    final frequencyLabel =
+        '${context.l10n.wateringFrequency(frequency)} · $season';
     if (listMode) {
-      return _buildListCard(daysUntilWatering, frequency, season);
+      return _buildListCard(daysUntilWatering, frequencyLabel, season);
     }
     return SizedBox(
       height: 338,
@@ -97,7 +99,7 @@ class PlantCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          'Каждые $frequency дн. · $season',
+                          frequencyLabel,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -125,7 +127,11 @@ class PlantCard extends StatelessWidget {
     );
   }
 
-  Widget _buildListCard(int daysUntilWatering, int frequency, String season) {
+  Widget _buildListCard(
+    int daysUntilWatering,
+    String frequencyLabel,
+    String season,
+  ) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final photoWidth =
@@ -174,7 +180,7 @@ class PlantCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Каждые $frequency дн. · $season',
+                          frequencyLabel,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -244,7 +250,8 @@ class _PhotoWithBadgesState extends State<_PhotoWithBadges> {
   Widget build(BuildContext context) {
     final (chipBg, chipFg) =
         context.floraqua.difficultyColors(widget.plant.difficulty);
-    final statusColor = context.floraqua.wateringStatusColor(widget.daysUntilWatering);
+    final statusColor =
+        context.floraqua.wateringStatusColor(widget.daysUntilWatering);
     // Подсказку и значок увеличения показываем только если фото реально
     // можно открыть (не для заглушки-плейсхолдера без снимка) — иначе это
     // была бы подсказка про несуществующее действие.
@@ -311,7 +318,8 @@ class _PhotoWithBadgesState extends State<_PhotoWithBadges> {
                       color: Colors.black45,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.zoom_in, color: Colors.white, size: 28),
+                    child: const Icon(Icons.zoom_in,
+                        color: Colors.white, size: 28),
                   ),
                 ),
               ),
@@ -334,7 +342,7 @@ class _PhotoWithBadgesState extends State<_PhotoWithBadges> {
         // размера что на телефоне, что на широком десктопном окне.
         child: canOpen
             ? Tooltip(
-                message: 'Двойной клик — открыть в полный размер',
+                message: context.l10n.openPhotoFullSize,
                 waitDuration: const Duration(milliseconds: 400),
                 child: photoStack,
               )
@@ -437,7 +445,6 @@ class _NameAndRing extends StatelessWidget {
   }
 }
 
-
 class _CompactCardActions extends StatelessWidget {
   final Future<bool> Function()? onWater;
   final VoidCallback? onOpenDetails;
@@ -463,17 +470,17 @@ class _CompactCardActions extends StatelessWidget {
             children: [
               _WateringActionButton(onWater: onWater, compact: true),
               IconButton(
-                tooltip: 'Подробнее',
+                tooltip: context.l10n.plantDetails,
                 onPressed: onOpenDetails,
                 style: IconButton.styleFrom(
                   foregroundColor: context.floraqua.primaryDark,
                   side: BorderSide(color: context.floraqua.primaryLight),
                 ),
-                icon: Icon(Icons.article_outlined),
+                icon: const Icon(Icons.article_outlined),
               ),
               PopupMenuButton<_CardAction>(
-                tooltip: 'Другие действия',
-                icon: Icon(Icons.more_horiz),
+                tooltip: context.l10n.moreActions,
+                icon: const Icon(Icons.more_horiz),
                 onSelected: _dispatch,
                 itemBuilder: _menuItems,
               ),
@@ -500,12 +507,12 @@ class _CompactCardActions extends StatelessWidget {
                         foregroundColor: context.floraqua.primaryDark,
                         side: BorderSide(color: context.floraqua.primaryLight),
                       ),
-                      child: const Text('Детали'),
+                      child: Text(context.l10n.plantDetails),
                     )
                   : OutlinedButton.icon(
                       onPressed: onOpenDetails,
-                      icon: Icon(Icons.article_outlined, size: 16),
-                      label: const Text('Подробнее'),
+                      icon: const Icon(Icons.article_outlined, size: 16),
+                      label: Text(context.l10n.plantDetails),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(0, 40),
                         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -515,8 +522,8 @@ class _CompactCardActions extends StatelessWidget {
                     ),
             ),
             PopupMenuButton<_CardAction>(
-              tooltip: 'Другие действия',
-              icon: Icon(Icons.more_horiz),
+              tooltip: context.l10n.moreActions,
+              icon: const Icon(Icons.more_horiz),
               onSelected: _dispatch,
               itemBuilder: _menuItems,
             ),
@@ -541,35 +548,35 @@ class _CompactCardActions extends StatelessWidget {
   }
 
   List<PopupMenuEntry<_CardAction>> _menuItems(BuildContext context) => [
-                if (onEdit != null)
-                  const PopupMenuItem(
-                    value: _CardAction.edit,
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(Icons.edit_outlined),
-                      title: Text('Изменить'),
-                    ),
-                  ),
-                if (onCheck != null)
-                  const PopupMenuItem(
-                    value: _CardAction.check,
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(Icons.photo_camera_outlined),
-                      title: Text('Перепроверить по фото'),
-                    ),
-                  ),
-                if (onDelete != null)
-                  PopupMenuItem(
-                    value: _CardAction.delete,
-                    child: ListTile(
-                      dense: true,
-                      leading:
-                          Icon(Icons.delete_outline, color: context.floraqua.error),
-                      title: Text('Удалить растение'),
-                      ),
-                  ),
-              ];
+        if (onEdit != null)
+          PopupMenuItem(
+            value: _CardAction.edit,
+            child: ListTile(
+              dense: true,
+              leading: const Icon(Icons.edit_outlined),
+              title: Text(context.l10n.commonEdit),
+            ),
+          ),
+        if (onCheck != null)
+          PopupMenuItem(
+            value: _CardAction.check,
+            child: ListTile(
+              dense: true,
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: Text(context.l10n.recheckPhoto),
+            ),
+          ),
+        if (onDelete != null)
+          PopupMenuItem(
+            value: _CardAction.delete,
+            child: ListTile(
+              dense: true,
+              leading:
+                  Icon(Icons.delete_outline, color: context.floraqua.error),
+              title: Text(context.l10n.deletePlantMenu),
+            ),
+          ),
+      ];
 }
 
 enum _CardAction { edit, check, delete }
@@ -602,16 +609,17 @@ class _WateringActionButtonState extends State<_WateringActionButton> {
     try {
       succeeded = await widget.onWater!();
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _working = false;
-        _justWatered = succeeded;
-      });
-      if (succeeded) {
-        _resetTimer?.cancel();
-        _resetTimer = Timer(const Duration(milliseconds: 1200), () {
-          if (mounted) setState(() => _justWatered = false);
+      if (mounted) {
+        setState(() {
+          _working = false;
+          _justWatered = succeeded;
         });
+        if (succeeded) {
+          _resetTimer?.cancel();
+          _resetTimer = Timer(const Duration(milliseconds: 1200), () {
+            if (mounted) setState(() => _justWatered = false);
+          });
+        }
       }
     }
   }
@@ -637,7 +645,8 @@ class _WateringActionButtonState extends State<_WateringActionButton> {
 
     if (widget.compact) {
       return Tooltip(
-        message: _justWatered ? 'Полив сохранён' : 'Полить',
+        message:
+            _justWatered ? context.l10n.wateringSaved : context.l10n.waterNow,
         child: IconButton(
           onPressed: _working ? null : _water,
           style: IconButton.styleFrom(
@@ -670,12 +679,16 @@ class _WateringActionButtonState extends State<_WateringActionButton> {
         duration: const Duration(milliseconds: 160),
         child: Text(
           _working
-              ? 'Полив…'
+              ? context.l10n.wateringInProgress
               : _justWatered
-                  ? 'Полито'
-                  : 'Полить',
+                  ? context.l10n.watered
+                  : context.l10n.waterNow,
           key: ValueKey(
-            _working ? 'watering' : _justWatered ? 'watered' : 'water',
+            _working
+                ? 'watering'
+                : _justWatered
+                    ? 'watered'
+                    : 'water',
           ),
         ),
       ),

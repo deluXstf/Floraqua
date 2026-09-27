@@ -22,9 +22,8 @@ ThemeData buildAppTheme({required Brightness brightness}) {
         : const Color(0xFF2E7D32),
     brightness: brightness,
     primary: palette.primary,
-    onPrimary: brightness == Brightness.dark
-        ? const Color(0xFF132316)
-        : Colors.white,
+    onPrimary:
+        brightness == Brightness.dark ? const Color(0xFF132316) : Colors.white,
     secondary: palette.secondary,
     error: palette.error,
     surface: palette.surface,

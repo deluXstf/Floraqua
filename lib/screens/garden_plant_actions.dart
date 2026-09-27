@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/plant.dart';
+import '../l10n/l10n_extensions.dart';
 import '../services/plant_store.dart';
 import '../services/seasonal_watering.dart';
 import '../theme/app_theme.dart';
@@ -31,14 +32,13 @@ class GardenPlantActions {
       );
     } on PlatformException {
       if (!context.mounted) return;
-      final place = source == ImageSource.camera ? 'камере' : 'фотографиям';
-      final settingsTarget = Theme.of(context).platform == TargetPlatform.iOS
-          ? 'настройках iPhone'
-          : 'настройках устройства';
+      final place = source == ImageSource.camera
+          ? context.l10n.permissionCamera
+          : context.l10n.permissionPhotos;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Нет доступа к $place. Разрешите его в $settingsTarget.',
+            context.l10n.addPhotoPermissionError(place),
           ),
         ),
       );
@@ -49,7 +49,7 @@ class GardenPlantActions {
     final details = await showPlantDetailsSheet(context);
     if (details == null || !context.mounted) return;
 
-    showGeminiLoadingDialog(context, 'Анализ фото...');
+    showGeminiLoadingDialog(context, context.l10n.loadingPhotoAnalysis);
     try {
       await store.addPlant(
         imagePath: photo.path,
@@ -62,7 +62,7 @@ class GardenPlantActions {
       if (!context.mounted) return;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Растение добавлено')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.plantAdded)));
     } catch (error) {
       if (!context.mounted) return;
       Navigator.of(context).pop();
@@ -77,7 +77,7 @@ class GardenPlantActions {
     );
     if (photo == null || !context.mounted) return;
 
-    showGeminiLoadingDialog(context, 'Проверка состояния...');
+    showGeminiLoadingDialog(context, context.l10n.loadingPlantCheck);
     try {
       final result = await store.geminiService.assessWateringByPhoto(
         imageBytes: await photo.readAsBytes(),
@@ -87,7 +87,7 @@ class GardenPlantActions {
         userNotes: plant.userNotes,
       );
 
-      await store.updatePlant(plant.id, (current) {
+      final saved = await store.updatePlant(plant.id, (current) {
         final needsNow = result['needs_water_now'] as bool? ?? false;
         final now = DateTime.now();
         final frequency = SeasonalWatering.frequencyFor(
@@ -104,6 +104,11 @@ class GardenPlantActions {
 
       if (!context.mounted) return;
       Navigator.of(context).pop();
+      if (!saved) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.gardenSaveWaterFailure)),
+        );
+      }
     } catch (error) {
       if (!context.mounted) return;
       Navigator.of(context).pop();
@@ -125,7 +130,7 @@ class GardenPlantActions {
     );
     if (details == null) return;
 
-    await store.updatePlant(plant.id, (current) {
+    final saved = await store.updatePlant(plant.id, (current) {
       final newFrequency =
           details.wateringFrequency ?? current.wateringFrequency;
       final newLastWatered = details.clearLastWatered
@@ -152,28 +157,41 @@ class GardenPlantActions {
         nextWatering: nextWatering,
       );
     });
+    if (!saved && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.gardenSaveWaterFailure)),
+      );
+    }
   }
 
   Future<void> confirmDelete(BuildContext context, Plant plant) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Удалить растение?'),
-        content: Text('«${plant.displayName}» будет удалено безвозвратно.'),
+        title: Text(context.l10n.deletePlantTitle),
+        content: Text(context.l10n.deletePlantBody(plant.displayName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Отмена'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: FilledButton.styleFrom(backgroundColor: context.floraqua.error),
-            child: const Text('Удалить'),
+            style:
+                FilledButton.styleFrom(backgroundColor: context.floraqua.error),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),
     );
-    if (confirmed == true) await store.deletePlant(plant.id);
+    if (confirmed == true) {
+      final deleted = await store.deletePlant(plant.id);
+      if (!deleted && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.gardenSaveWaterFailure)),
+        );
+      }
+    }
   }
 
   Future<void> openFullImage(BuildContext context, Plant plant) async {
@@ -215,21 +233,22 @@ Future<ImageSource?> showPlantImageSourcePicker(BuildContext context) {
     return showCupertinoModalPopup<ImageSource>(
       context: context,
       builder: (sheetContext) => CupertinoActionSheet(
-        title: const Text('Добавить растение'),
-        message: const Text('Откуда добавить фотографию?'),
+        title: Text(context.l10n.photoSourceTitle),
+        message: Text(context.l10n.photoSourcePrompt),
         actions: [
           CupertinoActionSheetAction(
-            onPressed: () => Navigator.of(sheetContext).pop(ImageSource.gallery),
-            child: const Text('Выбрать из фотогалереи'),
+            onPressed: () =>
+                Navigator.of(sheetContext).pop(ImageSource.gallery),
+            child: Text(context.l10n.choosePhotoLibrary),
           ),
           CupertinoActionSheetAction(
             onPressed: () => Navigator.of(sheetContext).pop(ImageSource.camera),
-            child: const Text('Сделать фото сейчас'),
+            child: Text(context.l10n.takePhotoNow),
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           onPressed: () => Navigator.of(sheetContext).pop(),
-          child: const Text('Отмена'),
+          child: Text(context.l10n.commonCancel),
         ),
       ),
     );
@@ -245,17 +264,17 @@ Future<ImageSource?> showPlantImageSourcePicker(BuildContext context) {
         children: [
           ListTile(
             leading: const Icon(Icons.photo_library_outlined),
-            title: const Text('Выбрать из фотогалереи'),
+            title: Text(context.l10n.choosePhotoLibrary),
             onTap: () => Navigator.of(sheetContext).pop(ImageSource.gallery),
           ),
           ListTile(
             leading: const Icon(Icons.photo_camera_outlined),
-            title: const Text('Сделать фото сейчас'),
+            title: Text(context.l10n.takePhotoNow),
             onTap: () => Navigator.of(sheetContext).pop(ImageSource.camera),
           ),
           ListTile(
             leading: const Icon(Icons.close),
-            title: const Text('Отмена'),
+            title: Text(context.l10n.commonCancel),
             onTap: () => Navigator.of(sheetContext).pop(),
           ),
         ],

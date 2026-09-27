@@ -11,6 +11,7 @@ class SecureStorageService {
   static const _reminderTimeStorageKey = 'watering_reminder_time';
   static const _gardenViewModeStorageKey = 'garden_view_mode';
   static const _themeModeStorageKey = 'theme_mode';
+  static const _localeCodeStorageKey = 'locale_code';
   static const _onboardingCompleteStorageKey = 'onboarding_complete';
 
   final FlutterSecureStorage _storage;
@@ -40,7 +41,8 @@ class SecureStorageService {
     }
     await _storage.write(
       key: _reminderTimeStorageKey,
-      value: '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}',
+      value:
+          '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}',
     );
   }
 
@@ -66,6 +68,16 @@ class SecureStorageService {
       );
     }
     await _storage.write(key: _themeModeStorageKey, value: mode);
+  }
+
+  Future<String?> loadLocaleCode() async =>
+      _storage.read(key: _localeCodeStorageKey);
+
+  Future<void> saveLocaleCode(String code) async {
+    if (code != 'ru' && code != 'en') {
+      throw ArgumentError.value(code, 'code', 'Supported locales: ru, en');
+    }
+    await _storage.write(key: _localeCodeStorageKey, value: code);
   }
 
   Future<bool> hasCompletedOnboarding() async =>

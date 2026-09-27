@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'l10n/generated/app_localizations.dart';
 import 'screens/api_key_setup_screen.dart';
 import 'screens/garden_screen.dart';
 import 'screens/onboarding_screen.dart';
@@ -10,28 +11,29 @@ import 'services/secure_storage_service.dart';
 import 'theme/app_theme.dart';
 
 void main() {
-  runApp(const PlantGardenApp());
+  runApp(const FloraquaApp());
 }
 
-class PlantGardenApp extends StatefulWidget {
-  const PlantGardenApp({super.key});
+class FloraquaApp extends StatefulWidget {
+  const FloraquaApp({super.key});
 
   @override
-  State<PlantGardenApp> createState() => _PlantGardenAppState();
+  State<FloraquaApp> createState() => _FloraquaAppState();
 }
 
-class _PlantGardenAppState extends State<PlantGardenApp> {
+class _FloraquaAppState extends State<FloraquaApp> {
   final _secureStorage = SecureStorageService();
   ThemeMode _themeMode = ThemeMode.system;
-  bool _themeLoaded = false;
+  String _localeCode = 'ru';
+  bool _preferencesLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _loadThemeMode();
+    _loadAppPreferences();
   }
 
-  Future<void> _loadThemeMode() async {
+  Future<void> _loadAppPreferences() async {
     try {
       final savedMode = await _secureStorage.loadThemeMode();
       final mode = switch (savedMode) {
@@ -42,8 +44,17 @@ class _PlantGardenAppState extends State<PlantGardenApp> {
       if (mounted) setState(() => _themeMode = mode);
     } catch (error) {
       debugPrint('Не удалось загрузить тему: $error');
+    }
+
+    try {
+      final savedLocale = await _secureStorage.loadLocaleCode();
+      if ((savedLocale == 'ru' || savedLocale == 'en') && mounted) {
+        setState(() => _localeCode = savedLocale!);
+      }
+    } catch (error) {
+      debugPrint('Could not load language preference: $error');
     } finally {
-      if (mounted) setState(() => _themeLoaded = true);
+      if (mounted) setState(() => _preferencesLoaded = true);
     }
   }
 
@@ -52,19 +63,29 @@ class _PlantGardenAppState extends State<PlantGardenApp> {
     if (mounted) setState(() => _themeMode = mode);
   }
 
+  Future<void> _changeLocaleCode(String code) async {
+    await _secureStorage.saveLocaleCode(code);
+    if (mounted) setState(() => _localeCode = code);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Floraqua',
+      locale: Locale(_localeCode),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(brightness: Brightness.light),
       darkTheme: buildAppTheme(brightness: Brightness.dark),
       themeMode: _themeMode,
-      home: _themeLoaded
+      home: _preferencesLoaded
           ? _AppStartup(
               secureStorage: _secureStorage,
               themeMode: _themeMode,
+              localeCode: _localeCode,
               onThemeModeChanged: _changeThemeMode,
+              onLocaleCodeChanged: _changeLocaleCode,
             )
           : const Scaffold(body: Center(child: CircularProgressIndicator())),
     );
@@ -75,12 +96,16 @@ class _PlantGardenAppState extends State<PlantGardenApp> {
 class _AppStartup extends StatefulWidget {
   final SecureStorageService secureStorage;
   final ThemeMode themeMode;
+  final String localeCode;
   final Future<void> Function(ThemeMode) onThemeModeChanged;
+  final Future<void> Function(String) onLocaleCodeChanged;
 
   const _AppStartup({
     required this.secureStorage,
     required this.themeMode,
+    required this.localeCode,
     required this.onThemeModeChanged,
+    required this.onLocaleCodeChanged,
   });
 
   @override
@@ -107,14 +132,12 @@ class _AppStartupState extends State<_AppStartup> {
       debugPrint('Не удалось загрузить Gemini-ключ: $error');
     }
     try {
-      onboardingComplete =
-          await widget.secureStorage.hasCompletedOnboarding();
+      onboardingComplete = await widget.secureStorage.hasCompletedOnboarding();
     } catch (error) {
       debugPrint('Не удалось проверить первый запуск: $error');
     }
 
-    // Не показываем onboarding тем, кто уже пользовался приложением до
-    // появления этого экрана и успел сохранить персональный API-ключ.
+    // Keep existing users with a saved personal key out of the new onboarding.
     if (!onboardingComplete && key != null) {
       try {
         await widget.secureStorage.completeOnboarding();
@@ -145,7 +168,11 @@ class _AppStartupState extends State<_AppStartup> {
     }
 
     if (!_onboardingComplete) {
-      return OnboardingScreen(onComplete: _finishOnboarding);
+      return OnboardingScreen(
+        localeCode: widget.localeCode,
+        onLocaleCodeChanged: widget.onLocaleCodeChanged,
+        onComplete: _finishOnboarding,
+      );
     }
 
     if (_apiKey == null) {
@@ -159,7 +186,9 @@ class _AppStartupState extends State<_AppStartup> {
       apiKey: _apiKey!,
       secureStorage: widget.secureStorage,
       themeMode: widget.themeMode,
+      localeCode: widget.localeCode,
       onThemeModeChanged: widget.onThemeModeChanged,
+      onLocaleCodeChanged: widget.onLocaleCodeChanged,
       onChangeApiKey: () => setState(() => _apiKey = null),
     );
   }
@@ -170,14 +199,18 @@ class _GardenRoot extends StatefulWidget {
   final String apiKey;
   final SecureStorageService secureStorage;
   final ThemeMode themeMode;
+  final String localeCode;
   final Future<void> Function(ThemeMode) onThemeModeChanged;
+  final Future<void> Function(String) onLocaleCodeChanged;
   final VoidCallback onChangeApiKey;
 
   const _GardenRoot({
     required this.apiKey,
     required this.secureStorage,
     required this.themeMode,
+    required this.localeCode,
     required this.onThemeModeChanged,
+    required this.onLocaleCodeChanged,
     required this.onChangeApiKey,
   });
 
@@ -194,11 +227,15 @@ class _GardenRootState extends State<_GardenRoot> {
   @override
   void initState() {
     super.initState();
-    _geminiService = GeminiService(apiKey: widget.apiKey);
-    _notificationService = NotificationService();
+    _geminiService = GeminiService(
+      apiKey: widget.apiKey,
+      localeCode: widget.localeCode,
+    );
+    _notificationService = NotificationService(localeCode: widget.localeCode);
     _store = PlantStore(
       geminiService: _geminiService,
       notificationService: _notificationService,
+      localeCode: widget.localeCode,
     );
     _init();
   }
@@ -225,6 +262,14 @@ class _GardenRootState extends State<_GardenRoot> {
   }
 
   @override
+  void didUpdateWidget(covariant _GardenRoot oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.localeCode != widget.localeCode) {
+      _store.updateLocale(widget.localeCode);
+    }
+  }
+
+  @override
   void dispose() {
     _store.dispose();
     _geminiService.dispose();
@@ -240,7 +285,9 @@ class _GardenRootState extends State<_GardenRoot> {
       store: _store,
       secureStorage: widget.secureStorage,
       themeMode: widget.themeMode,
+      localeCode: widget.localeCode,
       onThemeModeChanged: widget.onThemeModeChanged,
+      onLocaleCodeChanged: widget.onLocaleCodeChanged,
       onChangeApiKey: widget.onChangeApiKey,
     );
   }
