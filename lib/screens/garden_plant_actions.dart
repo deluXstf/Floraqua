@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/plant.dart';
@@ -18,10 +20,30 @@ class GardenPlantActions {
   const GardenPlantActions({required this.store});
 
   Future<void> addPlant(BuildContext context) async {
-    final photo = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 90,
-    );
+    final source = await showPlantImageSourcePicker(context);
+    if (source == null || !context.mounted) return;
+
+    XFile? photo;
+    try {
+      photo = await ImagePicker().pickImage(
+        source: source,
+        imageQuality: 90,
+      );
+    } on PlatformException {
+      if (!context.mounted) return;
+      final place = source == ImageSource.camera ? 'камере' : 'фотографиям';
+      final settingsTarget = Theme.of(context).platform == TargetPlatform.iOS
+          ? 'настройках iPhone'
+          : 'настройках устройства';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Нет доступа к $place. Разрешите его в $settingsTarget.',
+          ),
+        ),
+      );
+      return;
+    }
     if (photo == null || !context.mounted) return;
 
     final details = await showPlantDetailsSheet(context);
@@ -184,4 +206,60 @@ class GardenPlantActions {
       ),
     );
   }
+}
+
+/// Спрашивает, откуда взять фотографию растения.
+/// На iPhone использует привычное системное action sheet.
+Future<ImageSource?> showPlantImageSourcePicker(BuildContext context) {
+  if (Theme.of(context).platform == TargetPlatform.iOS) {
+    return showCupertinoModalPopup<ImageSource>(
+      context: context,
+      builder: (sheetContext) => CupertinoActionSheet(
+        title: const Text('Добавить растение'),
+        message: const Text('Откуда добавить фотографию?'),
+        actions: [
+          CupertinoActionSheetAction(
+            onPressed: () => Navigator.of(sheetContext).pop(ImageSource.gallery),
+            child: const Text('Выбрать из фотогалереи'),
+          ),
+          CupertinoActionSheetAction(
+            onPressed: () => Navigator.of(sheetContext).pop(ImageSource.camera),
+            child: const Text('Сделать фото сейчас'),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(sheetContext).pop(),
+          child: const Text('Отмена'),
+        ),
+      ),
+    );
+  }
+
+  return showModalBottomSheet<ImageSource>(
+    context: context,
+    useSafeArea: true,
+    showDragHandle: true,
+    builder: (sheetContext) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.photo_library_outlined),
+            title: const Text('Выбрать из фотогалереи'),
+            onTap: () => Navigator.of(sheetContext).pop(ImageSource.gallery),
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_camera_outlined),
+            title: const Text('Сделать фото сейчас'),
+            onTap: () => Navigator.of(sheetContext).pop(ImageSource.camera),
+          ),
+          ListTile(
+            leading: const Icon(Icons.close),
+            title: const Text('Отмена'),
+            onTap: () => Navigator.of(sheetContext).pop(),
+          ),
+        ],
+      ),
+    ),
+  );
 }

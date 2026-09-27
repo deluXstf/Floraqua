@@ -23,6 +23,8 @@ flutter run
 
 Состояние сада обновляется через `PlantStore extends ChangeNotifier`; экраны подписываются через `ListenableBuilder`. Сейчас этого достаточно, поэтому дополнительный пакет state management специально не добавлен.
 
+При добавлении растения можно выбрать снимок из фотогалереи или сделать новый камерой. На iPhone показывается нативное меню выбора источника.
+
 ## CI
 
 `.github/workflows/flutter.yml` запускает на GitHub Actions под Windows `flutter analyze`, `flutter test` и Release-сборку приложения при push/pull request, а также позволяет запустить проверку вручную.
