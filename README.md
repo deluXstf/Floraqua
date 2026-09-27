@@ -22,29 +22,213 @@
 - русский и английский языки;
 - светлая, тёмная и системная тема.
 
-## Установка на Windows
+## Важно о GitHub и EXE
 
-1. Скачайте архив с последней версией Floraqua.
-2. Распакуйте архив в удобную папку.
-3. Запустите файл:
+Папка `build` не добавляется в GitHub-репозиторий: это временные файлы сборки, которые создаются локально на компьютере разработчика.
 
-```text
-plant_garden.exe
+Поэтому после скачивания исходников из GitHub готового `plant_garden.exe` внутри проекта не будет. Сначала необходимо установить Flutter, получить зависимости и самостоятельно собрать приложение по инструкции ниже.
+
+Готовый EXE можно публиковать отдельно через **GitHub Releases**, облачное хранилище или другой канал распространения. Для запуска пользователю нужна вся папка релиза, а не только один EXE.
+
+## Настройка Flutter с нуля на Windows
+
+### 1. Установите Git
+
+Скачайте и установите Git for Windows:
+
+<https://git-scm.com/download/win>
+
+Во время установки можно оставить стандартные настройки.
+
+Проверьте установку в PowerShell:
+
+```powershell
+git --version
 ```
 
-Файл находится в папке с программой. **Не перемещайте EXE отдельно от остальных файлов и папок**, иначе приложение может не запуститься.
+### 2. Установите Flutter SDK
 
-## Первый запуск
+1. Откройте официальную инструкцию:
 
-При первом запуске приложение предложит настроить основные параметры. Затем можно добавить первое растение:
+   <https://docs.flutter.dev/get-started/install/windows/desktop>
 
-1. нажмите кнопку добавления растения;
-2. выберите фотографию из галереи или сделайте снимок;
-3. при необходимости укажите размер горшка, расположение и наличие дренажа;
-4. дождитесь результата анализа;
-5. проверьте предложенные данные и сохраните растение.
+2. Скачайте Flutter SDK для Windows.
+3. Распакуйте его, например, в:
 
-## Подключение Gemini
+```text
+C:\src\flutter
+```
+
+Не располагайте Flutter в папках с кириллицей, пробелами или требованием прав администратора.
+
+4. Добавьте Flutter в `PATH`:
+
+```text
+C:\src\flutter\bin
+```
+
+Самый простой способ:
+
+1. откройте меню Windows и найдите **Изменение системных переменных среды**;
+2. откройте **Переменные среды**;
+3. в пользовательской переменной `Path` добавьте `C:\src\flutter\bin`;
+4. сохраните изменения;
+5. закройте и заново откройте PowerShell.
+
+Проверьте Flutter:
+
+```powershell
+flutter --version
+```
+
+### 3. Установите Visual Studio для Windows-сборки
+
+Для сборки Windows-приложений нужен **Visual Studio 2022** или более новая версия:
+
+<https://visualstudio.microsoft.com/downloads/>
+
+При установке выберите рабочую нагрузку:
+
+```text
+Desktop development with C++
+```
+
+Убедитесь, что вместе с ней установлены:
+
+- MSVC C++ build tools;
+- Windows 10 или Windows 11 SDK;
+- CMake tools for Windows.
+
+Visual Studio Code сам по себе недостаточен для сборки Windows-приложения: необходимы именно C++ build tools из Visual Studio.
+
+### 4. Проверьте окружение
+
+Откройте новое окно PowerShell и выполните:
+
+```powershell
+flutter doctor
+```
+
+Для Windows-сборки важны строки без ошибок напротив:
+
+- Flutter;
+- Windows Version;
+- Visual Studio;
+- Connected device или Windows desktop.
+
+Если Flutter предлагает принять лицензии Android, выполните:
+
+```powershell
+flutter doctor --android-licenses
+```
+
+Для Windows desktop Android SDK не требуется, но команда `flutter doctor` может показывать предупреждение о нём — это не блокирует сборку Windows.
+
+Включите поддержку Windows desktop:
+
+```powershell
+flutter config --enable-windows-desktop
+```
+
+Проверьте доступные устройства:
+
+```powershell
+flutter devices
+```
+
+В списке должно появиться устройство `windows`.
+
+## Получение проекта из GitHub
+
+Склонируйте репозиторий:
+
+```powershell
+git clone https://github.com/<username>/<repository>.git
+cd <repository>
+```
+
+Если репозиторий уже скачан ZIP-архивом, распакуйте его и перейдите в папку проекта:
+
+```powershell
+cd C:\путь\к\Floraqua
+```
+
+Проверьте, что внутри находятся файлы и папки:
+
+```text
+pubspec.yaml
+lib\
+test\
+windows\
+```
+
+## Установка зависимостей и запуск
+
+Из корня проекта выполните:
+
+```powershell
+flutter pub get
+flutter gen-l10n
+```
+
+Запустите приложение в режиме разработки:
+
+```powershell
+flutter run -d windows
+```
+
+Если устройство Windows не найдено, сначала выполните:
+
+```powershell
+flutter config --enable-windows-desktop
+flutter devices
+```
+
+## Сборка EXE
+
+Для чистой Release-сборки выполните:
+
+```powershell
+flutter clean
+flutter pub get
+flutter gen-l10n
+flutter build windows --release
+```
+
+После успешной сборки приложение будет находиться здесь:
+
+```text
+build\windows\x64\runner\Release\plant_garden.exe
+```
+
+Запуск собранной версии:
+
+```powershell
+.\build\windows\x64\runner\Release\plant_garden.exe
+```
+
+### Как передать готовое приложение другому пользователю
+
+Передавайте **всю папку**:
+
+```text
+build\windows\x64\runner\Release\
+```
+
+Нельзя передавать только `plant_garden.exe`, потому что рядом с ним находятся DLL и папки с ресурсами Flutter.
+
+Чтобы упаковать папку в ZIP:
+
+```powershell
+Compress-Archive `
+  -Path .\build\windows\x64\runner\Release\* `
+  -DestinationPath .\Floraqua-Windows-Release.zip `
+  -Force
+```
+
+Пользователь должен распаковать этот ZIP и запускать `plant_garden.exe` из распакованной папки.
+
+## Первый запуск и Gemini
 
 Для распознавания растений Floraqua использует Google Gemini. Для этой функции необходим собственный **Gemini API-ключ**.
 
