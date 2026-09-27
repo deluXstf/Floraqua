@@ -127,8 +127,7 @@ void main() {
     );
     expect(calendar, isNot(contains('RRULE:')));
   });
-  test('восстанавливает сад из backup при повреждённом основном JSON',
-      () async {
+  test('восстанавливает сад из backup при повреждённом основном JSON', () async {
     await writeGarden([plantJson()]);
     final gardenDir = Directory('${supportDirectory.path}/plant_garden');
     await File('${gardenDir.path}/my_garden.json')
@@ -139,16 +138,15 @@ void main() {
     final store = PlantStore(
       geminiService: GeminiService(
         apiKey: 'test',
-        client:
-            MockClient((_) async => throw StateError('Unexpected HTTP call')),
+        client: MockClient((_) async => throw StateError('Unexpected HTTP call')),
       ),
       supportDirectoryOverride: supportDirectory,
     );
     await store.loadGarden();
 
     expect(store.plants.single.id, 7);
-    final restored =
-        await File('${gardenDir.path}/my_garden.json').readAsString();
+    final restored = await File('${gardenDir.path}/my_garden.json').readAsString();
     expect(restored, contains('"id": 7'));
   });
+
 }

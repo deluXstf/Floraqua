@@ -27,8 +27,7 @@ class GeminiService {
   String localeCode;
   final Random _random = Random();
 
-  GeminiService(
-      {required this.apiKey, http.Client? client, this.localeCode = 'ru'})
+  GeminiService({required this.apiKey, http.Client? client, this.localeCode = 'ru'})
       : _client = client ?? http.Client();
 
   Uri get _endpoint => Uri.parse(

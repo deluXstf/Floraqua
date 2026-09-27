@@ -557,13 +557,13 @@ abstract class AppLocalizations {
   /// No description provided for @healthyCount.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{{count} on schedule} other{{count} on schedule}}'**
+  /// **'{count, plural, one{# on schedule} other{# on schedule}}'**
   String healthyCount(int count);
 
   /// No description provided for @dueCount.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{{count} needs water} other{{count} need water}}'**
+  /// **'{count, plural, one{# needs water} other{# need water}}'**
   String dueCount(int count);
 
   /// No description provided for @emptyGardenTitle.
@@ -605,7 +605,7 @@ abstract class AppLocalizations {
   /// No description provided for @wateringFrequency.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{Every {count} day} other{Every {count} days}}'**
+  /// **'{count, plural, one{Every # day} other{Every # days}}'**
   String wateringFrequency(int count);
 
   /// No description provided for @seasonSpring.
@@ -707,7 +707,7 @@ abstract class AppLocalizations {
   /// No description provided for @historyCount.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{{count} history entry} other{{count} history entries}}'**
+  /// **'{count, plural, one{# history entry} other{# history entries}}'**
   String historyCount(int count);
 
   /// No description provided for @markWatered.
@@ -1295,7 +1295,7 @@ abstract class AppLocalizations {
   /// No description provided for @wateringDaysShort.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{{count} day} other{{count} days}}'**
+  /// **'{count, plural, one{# day} other{# days}}'**
   String wateringDaysShort(int count);
 
   /// No description provided for @themeSaveError.

@@ -52,8 +52,7 @@ class PlantStore extends ChangeNotifier {
         try {
           await notificationService!.scheduleWateringReminder(plant);
         } catch (error) {
-          debugPrint(
-              'Could not refresh a reminder after changing language: $error');
+          debugPrint('Could not refresh a reminder after changing language: $error');
         }
       }
     }
@@ -168,8 +167,7 @@ class PlantStore extends ChangeNotifier {
         }
         if (await tempFile.exists()) await tempFile.delete();
       } catch (restoreError) {
-        debugPrint(
-            'Не удалось восстановить файл сада после сбоя: $restoreError');
+        debugPrint('Не удалось восстановить файл сада после сбоя: $restoreError');
       }
       return false;
     }

@@ -14,8 +14,7 @@ Plant _plant({
   required String name,
   required String careTips,
   String scientificName = '',
-}) =>
-    Plant(
+}) => Plant(
       id: id,
       name: name,
       scientificName: scientificName,
@@ -66,11 +65,8 @@ void main() {
                       key: const ValueKey('long'),
                       plant: _plant(
                         id: 2,
-                        name:
-                            'Очень длинное название растения, которое не должно растягивать карточку',
-                        careTips:
-                            List.filled(100, 'Подробная рекомендация по уходу')
-                                .join(' '),
+                        name: 'Очень длинное название растения, которое не должно растягивать карточку',
+                        careTips: List.filled(100, 'Подробная рекомендация по уходу').join(' '),
                         scientificName: 'Ficus elastica var. decora',
                       ),
                     ),
@@ -109,9 +105,9 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        locale: const Locale('ru'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ru'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Center(
             child: SizedBox(
@@ -121,8 +117,7 @@ void main() {
                 plant: _plant(
                   id: 3,
                   name: 'Монстера',
-                  careTips:
-                      'Длинный совет по уходу для проверки обрезки текста.',
+                  careTips: 'Длинный совет по уходу для проверки обрезки текста.',
                 ),
               ),
             ),
@@ -186,9 +181,9 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        locale: const Locale('ru'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ru'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Center(
             child: SizedBox(

@@ -265,10 +265,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count растения в порядке',
-      many: '$count растений в порядке',
-      few: '$count растения в порядке',
-      one: '$count растение в порядке',
+      other: '${count} растения в порядке',
+      many: '${count} растений в порядке',
+      few: '${count} растения в порядке',
+      one: '${count} растение в порядке',
     );
     return '$_temp0';
   }
@@ -278,10 +278,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count растения нуждаются в поливе',
-      many: '$count растений нуждаются в поливе',
-      few: '$count растения нуждаются в поливе',
-      one: '$count растение нуждается в поливе',
+      other: '${count} растения нуждаются в поливе',
+      many: '${count} растений нуждаются в поливе',
+      few: '${count} растения нуждаются в поливе',
+      one: '${count} растение нуждается в поливе',
     );
     return '$_temp0';
   }
@@ -311,10 +311,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Каждые $count дня',
-      many: 'Каждые $count дней',
-      few: 'Каждые $count дня',
-      one: 'Каждые $count день',
+      other: 'Каждые ${count} дня',
+      many: 'Каждые ${count} дней',
+      few: 'Каждые ${count} дня',
+      one: 'Каждые ${count} день',
     );
     return '$_temp0';
   }
@@ -376,10 +376,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count записи в истории',
-      many: '$count записей в истории',
-      few: '$count записи в истории',
-      one: '$count запись в истории',
+      other: '${count} записи в истории',
+      many: '${count} записей в истории',
+      few: '${count} записи в истории',
+      one: '${count} запись в истории',
     );
     return '$_temp0';
   }
@@ -711,10 +711,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count дн.',
-      many: '$count дн.',
-      few: '$count дн.',
-      one: '$count дн.',
+      other: '${count} дн.',
+      many: '${count} дн.',
+      few: '${count} дн.',
+      one: '${count} дн.',
     );
     return '$_temp0';
   }

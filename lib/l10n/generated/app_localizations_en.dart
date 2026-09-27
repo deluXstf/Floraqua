@@ -263,8 +263,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count on schedule',
-      one: '$count on schedule',
+      other: '${count} on schedule',
+      one: '${count} on schedule',
     );
     return '$_temp0';
   }
@@ -274,8 +274,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count need water',
-      one: '$count needs water',
+      other: '${count} need water',
+      one: '${count} needs water',
     );
     return '$_temp0';
   }
@@ -305,8 +305,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Every $count days',
-      one: 'Every $count day',
+      other: 'Every ${count} days',
+      one: 'Every ${count} day',
     );
     return '$_temp0';
   }
@@ -368,8 +368,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count history entries',
-      one: '$count history entry',
+      other: '${count} history entries',
+      one: '${count} history entry',
     );
     return '$_temp0';
   }
@@ -700,8 +700,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count days',
-      one: '$count day',
+      other: '${count} days',
+      one: '${count} day',
     );
     return '$_temp0';
   }

@@ -178,10 +178,8 @@ void main() {
   });
 
   group('identifyPlant', () {
-    test('English locale provides English identification and context prompts',
-        () {
-      expect(identifyPlantPromptFor('en'),
-          contains('common plant name in English'));
+    test('English locale provides English identification and context prompts', () {
+      expect(identifyPlantPromptFor('en'), contains('common plant name in English'));
       expect(
         buildGeminiContextBlock(potSize: 'Medium', localeCode: 'en'),
         contains('Additional growing conditions'),
@@ -289,8 +287,7 @@ void main() {
     );
   });
 
-  test('пустой или заблокированный ответ Gemini не приводит к TypeError',
-      () async {
+  test('пустой или заблокированный ответ Gemini не приводит к TypeError', () async {
     final client = MockClient((request) async => _utf8Response(
           jsonEncode({'candidates': []}),
           200,
@@ -302,4 +299,5 @@ void main() {
       throwsA(isA<GeminiApiException>()),
     );
   });
+
 }

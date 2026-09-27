@@ -177,8 +177,7 @@ class GardenPlantActions {
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style:
-                FilledButton.styleFrom(backgroundColor: context.floraqua.error),
+            style: FilledButton.styleFrom(backgroundColor: context.floraqua.error),
             child: Text(context.l10n.commonDelete),
           ),
         ],
@@ -237,8 +236,7 @@ Future<ImageSource?> showPlantImageSourcePicker(BuildContext context) {
         message: Text(context.l10n.photoSourcePrompt),
         actions: [
           CupertinoActionSheetAction(
-            onPressed: () =>
-                Navigator.of(sheetContext).pop(ImageSource.gallery),
+            onPressed: () => Navigator.of(sheetContext).pop(ImageSource.gallery),
             child: Text(context.l10n.choosePhotoLibrary),
           ),
           CupertinoActionSheetAction(
